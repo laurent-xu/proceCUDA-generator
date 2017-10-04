@@ -1,0 +1,9 @@
+1/ Parser des expression -> AST en c++ IMPORTANT FACILE   [ ]  Laurent
+2/ Coder les kernels atomiques en CUDA pour les opérations simples et changer les entrées soties pour chaque opération. Evt réutiliser certains patrons déjà faits PEU CRITIQUE MOYEN    [ ]
+3/ Implémenter les modules C++ pour faire le calcul sur CPU (on va cross bench après). Et visiter l'arbre, appeler les modules et renvoyer le résultat. MOYEN MOYEN   [ ]  Laurent
+  Au lieu de faire point par point faire grille par grille. Sur GPU fait par essence, sur CPU on vatricker la data locality en faisant chunk par chunk par exemple.
+5/ Implémenter le bruit de perlin en C++, car licence peu permissive. ex perlin(paramètres) -> grille MOYEN MOYEN   [ ]   Anat Auré
+6/ Implémenter le bruit de perlin en CUDA, car licence peu permissive MOYEN MOYEN   [ ]   Anat Auré
+7/ Générer le code CUDA   IMPORTANT IMPORTANT   [ ]   Anat Auré
+8/ Pluger sur un renderer A FAIRE VITE    [ ]  Aurélien sur OpenGL
+
