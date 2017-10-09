@@ -10,11 +10,11 @@ namespace rendering {
   HermitianGrid::HermitianGrid(std::vector<std::vector<node_t>> grid, point_t dimensions, int nodeSize)
       : _grid(grid), _dimensions(dimensions), _nodeSize(nodeSize)
   {
-    initSurfaceNodes();
-    computeIntersections();
+    _initSurfaceNodes();
+    _computeIntersections();
   }
 
-  void HermitianGrid::initSurfaceNodes() {
+  void HermitianGrid::_initSurfaceNodes() {
     int SIZE = 1;
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
@@ -36,7 +36,7 @@ namespace rendering {
         }
   }
 
-  void HermitianGrid::computeIntersections() {
+  void HermitianGrid::_computeIntersections() {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
@@ -52,20 +52,20 @@ namespace rendering {
               node.intersections.z = node.min.z + node.size / 2;
           }
           else {  // Air node
-            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).value == 0)
+            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).value != -1)
               node.intersections.x = node.min.x + node.size / 2;
-            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).value == 0)
+            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).value != -1)
               node.intersections.y = node.min.y + node.size / 2;
-            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).value == 0)
+            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).value != -1)
               node.intersections.z = node.min.z + node.size / 2;
           }
         }
   }
 
-  void HermitianGrid::computeVertices() {
+  void HermitianGrid::_computeVertices() {
   }
 
-  point_t HermitianGrid::computeVerticeForNode(int x, int y, int z) {
+  point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
     return point_t();
   }

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <glm/detail/type_mat.hpp>
 
 namespace rendering {
   struct point_t {
@@ -31,10 +32,10 @@ namespace rendering {
       HermitianGrid(std::vector<std::vector<node_t>> grid, point_t dimensions, int nodeSize);
 
     private:
-      void initSurfaceNodes();
-      void computeIntersections();
-      void computeVertices();
-      point_t computeVerticeForNode(int x, int y, int z);
+      void _initSurfaceNodes();
+      void _computeIntersections();
+      void _computeVertices();
+      point_t _computeVerticeForNode(int x, int y, int z);
 
     public:
       node_t getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
