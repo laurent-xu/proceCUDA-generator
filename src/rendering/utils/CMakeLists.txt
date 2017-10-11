@@ -1,4 +1,3 @@
 set(RENDERING_SOURCES ${RENDERING_SOURCES}
-        ${CMAKE_CURRENT_SOURCE_DIR}/nm-matrix.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/nm-matrix.hpp
         PARENT_SCOPE)
