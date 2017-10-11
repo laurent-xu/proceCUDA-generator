@@ -38,6 +38,7 @@ void testHermiteanComputation() {
         else
           nodes[z].push_back(rendering::node_t(+1, rendering::point_t(0, 0, 0)));
       }
+  rendering::HermitianGrid::printDensityGrid(nodes, rendering::point_t(5, 5, 1));
   rendering::HermitianGrid g(nodes, rendering::point_t(5, 5, 1), 1);
   for (int z = 0; z < 1; z++)
     for (int y = 0; y < 5; y++) {
@@ -52,9 +53,10 @@ void testHermiteanComputation() {
       }
       std::cout << std::endl;
     }
+  rendering::HermitianGrid::printHermitianGrid(g.getGrid(), g.getDimensions());
 }
 
 int main() {
-  testMatrixNM();
+  testHermiteanComputation();
   return 0;
 }

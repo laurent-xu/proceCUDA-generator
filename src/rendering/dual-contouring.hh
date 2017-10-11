@@ -29,7 +29,7 @@ namespace rendering {
 
   class HermitianGrid {
     public:
-      HermitianGrid(std::vector<std::vector<node_t>> grid, point_t dimensions, int nodeSize);
+      HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, int nodeSize);
 
     private:
       void _initSurfaceNodes();
@@ -38,8 +38,16 @@ namespace rendering {
       point_t _computeVerticeForNode(int x, int y, int z);
 
     public:
-      node_t getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
+      bool pointContainsFeature(int x, int y, int z);
+      const node_t &getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
       point_t getDimensions() { return _dimensions; }
+
+    public:
+      static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
+      static void printHermitianGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
+
+    public:
+      const std::vector<std::vector<node_t>> &getGrid() const { return _grid; }
 
     private:
       std::vector<std::vector<node_t>> _grid;  // _grid[z][y * _width + x]
