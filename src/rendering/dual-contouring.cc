@@ -15,12 +15,11 @@ namespace rendering {
   }
 
   void HermitianGrid::_initSurfaceNodes() {
-    int SIZE = 1;
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
-          node.size = SIZE;
+          node.size = _nodeSize;
           node.min = point_t(x * node.size, y * node.size, z * node.size);
           if (node.value == -1)
             continue;
