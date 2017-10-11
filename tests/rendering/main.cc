@@ -25,6 +25,9 @@ void testMatrixNM() {
   std::cout << "Matrix D: A^t + B" << std::endl;
   auto D = rendering::utils::nmMatrix<float>::add(At, B, n2, m2);
   rendering::utils::nmMatrix<float>::print(D, n2, m2);
+  std::cout << "Matrix E: D::B" << std::endl;
+  auto E = rendering::utils::nmMatrix<float>::append(D, B, n2, m2, m2);
+  rendering::utils::nmMatrix<float>::print(E, n2, m2 + m2);
 }
 
 void testHermiteanComputation() {
@@ -71,6 +74,7 @@ void testHermiteanComputation() {
 }
 
 int main() {
-  testHermiteanComputation();
+  testMatrixNM();
+  // testHermiteanComputation();
   return 0;
 }
