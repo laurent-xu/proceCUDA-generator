@@ -8,8 +8,8 @@
 
 namespace rendering {
 
-  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, int nodeSize)
-      : _grid(grid), _dimensions(dimensions), _nodeSize(nodeSize)
+  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize)
+      : _grid(grid), _densityGrid(grid), _dimensions(dimensions), _nodeSize(nodeSize)
   {
     _initSurfaceNodes();
     _computeIntersections();
@@ -20,8 +20,7 @@ namespace rendering {
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
-          node.size = _nodeSize;
-          node.min = point_t(x * node.size, y * node.size, z * node.size);
+          node.min = point_t(x * _nodeSize, y * _nodeSize, z * _nodeSize);
           if (pointContainsFeature(x, y, z))
             node.value = 0;
         }
@@ -32,23 +31,14 @@ namespace rendering {
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
-          if (node.value == 1)  // Interior node
-            continue;
+          auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
           if (node.value == 0) {  // Surface node
-            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).value == -1)
-              node.intersections.x = node.min.x + node.size / 2;
-            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).value == -1)
-              node.intersections.y = node.min.y + node.size / 2;
-            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).value == -1)
-              node.intersections.z = node.min.z + node.size / 2;
-          }
-          else {  // Air node
-            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).value != -1)
-              node.intersections.x = node.min.x + node.size / 2;
-            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).value != -1)
-              node.intersections.y = node.min.y + node.size / 2;
-            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).value != -1)
-              node.intersections.z = node.min.z + node.size / 2;
+            if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value != densityNode.value)
+              node.intersections.x = node.min.x + _nodeSize / 2;
+            if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value != densityNode.value)
+              node.intersections.y =  node.min.y + _nodeSize / 2;
+            if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value != densityNode.value)
+              node.intersections.z = node.min.z + _nodeSize / 2;
           }
         }
   }
@@ -72,7 +62,7 @@ namespace rendering {
     for (int i = 0; i <= 1 && x + i < _dimensions.x; i += 1)
       for (int j = 0; j <= 1 && y + j < _dimensions.y; j += 1)
         for (int k = 0; k <= 1 && z + k < _dimensions.z; k += 1) {
-          auto &node = getValueAt(x + i, y + j, z + k);
+          auto &node = _densityGrid[z + k][(y + j) * _dimensions.x + x + i];
           if (node.value == -1) {
             if (nb_solid != 0)
               return true;

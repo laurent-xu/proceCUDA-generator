@@ -43,6 +43,20 @@ void testHermiteanComputation() {
   for (int z = 0; z < 1; z++)
     for (int y = 0; y < 5; y++) {
       for (int x = 0; x < 5; x++) {
+        auto e = nodes[z][y * 5 + x].value;
+        if (e == -1)
+          std::cout << ". ";
+        if (e == 0)
+          std::cout << "O ";
+        if (e == 1)
+          std::cout << "0 ";
+      }
+      std::cout << std::endl;
+    }
+  std::cout << std::endl;
+  for (int z = 0; z < 1; z++)
+    for (int y = 0; y < 5; y++) {
+      for (int x = 0; x < 5; x++) {
         auto e = g.getValueAt(x, y, z).value;
         if (e == -1)
           std::cout << ". ";

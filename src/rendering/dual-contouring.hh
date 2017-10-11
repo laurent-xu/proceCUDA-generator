@@ -10,10 +10,10 @@
 namespace rendering {
   struct point_t {
     point_t() {}
-    point_t(int x, int y, int z) : x(x), y(y), z(z) {}
-    int x = 0;
-    int y = 0;
-    int z = 0;
+    point_t(float x, float y, float z) : x(x), y(y), z(z) {}
+    float x = 0;
+    float y = 0;
+    float z = 0;
   };
 
   struct node_t {
@@ -23,13 +23,12 @@ namespace rendering {
     point_t min;
     point_t vertex_pos;
     point_t intersections;
-    int size = 1;
     int vbo_idx;
   };
 
   class HermitianGrid {
     public:
-      HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, int nodeSize);
+      HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize);
 
     private:
       void _initSurfaceNodes();
@@ -51,8 +50,9 @@ namespace rendering {
 
     private:
       std::vector<std::vector<node_t>> _grid;  // _grid[z][y * _width + x]
+      const std::vector<std::vector<node_t>> _densityGrid;  // _grid[z][y * _width + x]
       point_t _dimensions;
-      int _nodeSize = 1;
+      float _nodeSize;
   };
 
   class DualContouring {
