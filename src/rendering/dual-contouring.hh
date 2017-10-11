@@ -35,6 +35,11 @@ namespace rendering {
       void _computeIntersections();
       void _computeVertices();
       point_t _computeVerticeForNode(int x, int y, int z);
+      void _registerIntersectionsForVertex(std::vector<float> &A, std::vector<float> &b,
+                                           const std::vector<float> &N, const node_t &node,
+                                           bool check_x, bool check_y, bool check_z);
+      void _registerIntersectionsForAxis(std::vector<float> &A, std::vector<float> &b,
+                                         const std::vector<float> &N, const node_t &node, int axis);
 
     public:
       bool pointContainsFeature(int x, int y, int z);
