@@ -28,6 +28,9 @@ void testMatrixNM() {
   std::cout << "Matrix E: D::B" << std::endl;
   auto E = rendering::utils::nmMatrix<float>::append(D, B, n2, m2, m2);
   rendering::utils::nmMatrix<float>::print(E, n2, m2 + m2);
+  std::cout << "Matrix F: extract E" << std::endl;
+  auto F = rendering::utils::nmMatrix<float>::extract(E, 2, 1, 4, 4, 6);
+  rendering::utils::nmMatrix<float>::print(F, 2, 2);
 }
 
 void testHermiteanComputation() {

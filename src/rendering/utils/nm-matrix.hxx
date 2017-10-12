@@ -70,6 +70,22 @@ namespace rendering {
       return result;
     }
 
+    template <typename T>
+    std::vector<T> nmMatrix<T>::extract(const std::vector<T> &A, int x, int y, int x_max, int y_max, int m) {
+      int n1 = y_max - y;
+      int m1 = x_max - x;
+      std:: vector<T> result(n1 * m1);
+      int i = 0, j = 0;
+      for (y; y < y_max; y++) {
+        for (x; x < x_max; x++) {
+          result[i * m1 + j] = A[y * m + x];
+          j++;
+        }
+        i++;
+      }
+      return result;
+    }
+
   }
 
 }

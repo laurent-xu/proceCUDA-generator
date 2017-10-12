@@ -7,6 +7,7 @@
 #include <rendering/utils/nm-matrix.hpp>
 #include <tgmath.h>
 #include "dual-contouring.hh"
+#include "qr-decomposition.hpp"
 
 namespace rendering {
 
@@ -77,6 +78,12 @@ namespace rendering {
     utils::nmMatrix<data_t>::print(b, (int) b.size(), 1);
     */
     auto Ab = utils::nmMatrix<data_t>::append(A, b, (int) b.size(), 3, 1);
+    QRDecomposition qrd(Ab);
+    auto Q = qrd.getQ();
+    auto QAb = utils::nmMatrix<data_t>::multiply(Q, Ab, (int) (Ab.size() / 4), 4, (int) (Ab.size() / 4), 4);
+    auto xA = utils::nmMatrix<data_t>::extract(QAb, 0, 0, 3, 3, 4);
+    auto xb = utils::nmMatrix<data_t>::extract(QAb, 3, 0, 3, 1, 4);
+    data_t r = QAb[3 * 4 + 3];
     return point_t(0, 0, 0);
   }
 
