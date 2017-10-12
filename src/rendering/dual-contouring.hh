@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <glm/detail/type_mat.hpp>
+#include "options.hpp"
 
 namespace rendering {
   struct point_t {
@@ -27,7 +28,6 @@ namespace rendering {
   };
 
   class HermitianGrid {
-      using data_t = double;
 
     public:
       HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize);

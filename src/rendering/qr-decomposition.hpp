@@ -6,16 +6,22 @@
 
 
 #include <vector>
+#include "options.hpp"
 
-class QRDecomposition {
-  public:
-    QRDecomposition(std::vector<double> matrix);
-    std::vector<double> getR();
-    std::vector<double> getQ();
+namespace rendering {
 
-  private:
-    std::vector<double> _matrix;
+    class QRDecomposition {
 
-};
+      public:
+        QRDecomposition(std::vector<data_t> matrix);
 
+        std::vector<data_t> getR();
 
+        std::vector<data_t> getQ();
+
+      private:
+        std::vector<data_t> _matrix;
+
+    };
+
+}
