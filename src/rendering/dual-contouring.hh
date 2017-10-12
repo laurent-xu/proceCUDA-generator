@@ -27,6 +27,8 @@ namespace rendering {
   };
 
   class HermitianGrid {
+      using data_t = double;
+
     public:
       HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize);
 
@@ -35,11 +37,11 @@ namespace rendering {
       void _computeIntersections();
       void _computeVertices();
       point_t _computeVerticeForNode(int x, int y, int z);
-      void _registerIntersectionsForVertex(std::vector<float> &A, std::vector<float> &b,
-                                           const std::vector<float> &N, const node_t &node,
+      void _registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
+                                           const std::vector<data_t> &N, const node_t &node,
                                            bool check_x, bool check_y, bool check_z);
-      void _registerIntersectionsForAxis(std::vector<float> &A, std::vector<float> &b,
-                                         const std::vector<float> &N, const node_t &node, int axis);
+      void _registerIntersectionsForAxis(std::vector<data_t> &A, std::vector<data_t> &b,
+                                         const std::vector<data_t> &N, const node_t &node, int axis);
 
     public:
       bool pointContainsFeature(int x, int y, int z);

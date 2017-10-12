@@ -60,7 +60,7 @@ namespace rendering {
 
     template <typename T>
     std::vector<T> nmMatrix<T>::append(const std::vector<T> &A, const std::vector<T> &B, int n, int m1, int m2) {
-      std::vector<float> result;
+      std::vector<T> result;
       for (int j = 0; j < n; j++) {
         for (int i = 0; i < m1; i++)
           result.push_back(A[j * m1 + i]);

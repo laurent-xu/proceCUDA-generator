@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <rendering/utils/nm-matrix.hpp>
+#include <tgmath.h>
 #include "dual-contouring.hh"
 
 namespace rendering {
@@ -57,11 +58,11 @@ namespace rendering {
 
   point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
-    float n[] = { node.gradient.x, node.gradient.y, node.gradient.z };
-    std::vector<float> N;
+    data_t n[] = { node.gradient.x, node.gradient.y, node.gradient.z };
+    std::vector<data_t> N;
     N.assign(n, n + 3);
-    std::vector<float> A;
-    std::vector<float> b;
+    std::vector<data_t> A;
+    std::vector<data_t> b;
     for (int i = 0; i <= 1 && x + i < _dimensions.x; i += 1)
       for (int j = 0; j <= 1 && y + j < _dimensions.y; j += 1)
         for (int k = 0; k <= 1 && z + k < _dimensions.z; k += 1) {
@@ -71,16 +72,17 @@ namespace rendering {
     /*
     std::cout << "RESULTS" << std::endl;
     std::cout << "\tA:" << std::endl;
-    utils::nmMatrix<float>::print(A, (int) (A.size() / 3), 3);
+    utils::nmMatrix<data_t>::print(A, (int) (A.size() / 3), 3);
     std::cout << "\tb:" << std::endl;
-    utils::nmMatrix<float>::print(b, (int) b.size(), 1);
+    utils::nmMatrix<data_t>::print(b, (int) b.size(), 1);
     */
+    auto Ab = utils::nmMatrix<data_t>::append(A, b, (int) b.size(), 3, 1);
     return point_t(0, 0, 0);
   }
 
 
-  void HermitianGrid::_registerIntersectionsForVertex(std::vector<float> &A, std::vector<float> &b,
-                                                      const std::vector<float> &N, const node_t &node,
+  void HermitianGrid::_registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
+                                                      const std::vector<data_t> &N, const node_t &node,
                                                       bool check_x, bool check_y, bool check_z)
   {
     if (check_x && node.intersections.x != 0)
@@ -91,16 +93,16 @@ namespace rendering {
       _registerIntersectionsForAxis(A, b, N, node, 2);
   }
 
-  void HermitianGrid::_registerIntersectionsForAxis(std::vector<float> &A, std::vector<float> &b,
-                                                    const std::vector<float> &N, const node_t &node, int axis) {
+  void HermitianGrid::_registerIntersectionsForAxis(std::vector<data_t> &A, std::vector<data_t> &b,
+                                                    const std::vector<data_t> &N, const node_t &node, int axis) {
     A.insert(A.end(), N.begin(), N.end());
-    float p[3] = { node.min.x, node.min.y, node.min.z };
-    float intersections_compo[3] = { node.intersections.x, node.intersections.y, node.intersections.z};
+    data_t p[3] = { node.min.x, node.min.y, node.min.z };
+    data_t intersections_compo[3] = { node.intersections.x, node.intersections.y, node.intersections.z};
     p[axis] += intersections_compo[axis];
-    std::vector<float> pi;
+    std::vector<data_t> pi;
     pi.assign(p, p + 3);
-    std::vector<float> ni = N;
-    float np = utils::nmMatrix<float>::multiply(ni, pi, 1, 3, 3, 1)[0];
+    std::vector<data_t> ni = N;
+    data_t np = utils::nmMatrix<data_t>::multiply(ni, pi, 1, 3, 3, 1)[0];
     b.push_back(np);
   }
 
