@@ -32,8 +32,20 @@ namespace rendering {
   }
 
   std::vector<data_t> QRDecomposition::getR() {
-    std::vector<data_t> result = _matrix;
-    return result;
+    std::vector<data_t> R = _matrix;
+
+    for (int i = 0; i < R.size() / 3; i++)
+      for (int j = 0; j < i; j++)
+        R[i * 3 + j] = 0;
+
+    // Resize R to a square matrix.
+    int n = min((int) (R.size() / 3), 3);
+    std::vector<data_t> resized_R((unsigned long) (n * n));
+    for (int i = 0; i < n; i++)
+      for (int j = 0; j < n; j++)
+        resized_R[i * 3 + j] = R[i * 3 + j];
+
+    return resized_R;
   }
 
   std::vector<data_t> QRDecomposition::getQ() {
