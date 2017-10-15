@@ -51,9 +51,14 @@ namespace rendering {
 
     template <typename T>
     void nmMatrix<T>::print(const std::vector<T> &A, int n, int m) {
+      print(A, n, m, 5);
+    }
+
+    template <typename T>
+    void nmMatrix<T>::print(const std::vector<T> &A, int n, int m, int space) {
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++)
-          std::cout << std::right << std::setw(5) << A[i * m + j];
+          std::cout << std::right << std::setw(space) << A[i * m + j];
         std::cout << std::endl;
       }
     }
@@ -74,13 +79,14 @@ namespace rendering {
     std::vector<T> nmMatrix<T>::extract(const std::vector<T> &A, int x, int y, int x_max, int y_max, int m) {
       int n1 = y_max - y;
       int m1 = x_max - x;
-      std:: vector<T> result(n1 * m1);
+      std::vector<T> result(n1 * m1);
       int i = 0, j = 0;
-      for (y; y < y_max; y++) {
-        for (x; x < x_max; x++) {
-          result[i * m1 + j] = A[y * m + x];
+      for (int ity = y; ity < y_max; ity++) {
+        for (int itx = x; itx < x_max; itx++) {
+          result[i * m1 + j] = A[ity * m + itx];
           j++;
         }
+        j = 0;
         i++;
       }
       return result;

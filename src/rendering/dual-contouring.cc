@@ -70,20 +70,12 @@ namespace rendering {
           _registerIntersectionsForVertex(A, b, N, getValueAt(x + i, y + j, z + k),
                                           i != 1, j != 1, k != 1);
         }
-    /*
-    std::cout << "RESULTS" << std::endl;
-    std::cout << "\tA:" << std::endl;
-    utils::nmMatrix<data_t>::print(A, (int) (A.size() / 3), 3);
-    std::cout << "\tb:" << std::endl;
-    utils::nmMatrix<data_t>::print(b, (int) b.size(), 1);
-    */
     auto Ab = utils::nmMatrix<data_t>::append(A, b, (int) b.size(), 3, 1);
-    QRDecomposition qrd(Ab);
-    auto Q = qrd.getQ();
-    auto QAb = utils::nmMatrix<data_t>::multiply(Q, Ab, (int) (Ab.size() / 4), 4, (int) (Ab.size() / 4), 4);
-    auto xA = utils::nmMatrix<data_t>::extract(QAb, 0, 0, 3, 3, 4);
-    auto xb = utils::nmMatrix<data_t>::extract(QAb, 3, 0, 3, 1, 4);
-    data_t r = QAb[3 * 4 + 3];
+    QRDecomposition qrd(Ab, (int) (Ab.size() / 4), 4);
+    auto QAb = qrd.getProcessedMatrix();
+    auto xA = qrd.extractAa();
+    auto xb = qrd.extractBb();
+    auto r = qrd.getR();
     return point_t(0, 0, 0);
   }
 

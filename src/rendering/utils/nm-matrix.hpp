@@ -21,6 +21,7 @@ namespace rendering {
         static std::vector<T> append(const std::vector<T> &A, const std::vector<T> &B, int n, int m1, int m2);
         static std::vector<T> extract(const std::vector<T> &A, int x, int y, int x_max, int y_max, int m);
         static void print(const std::vector<T> &A, int n, int m);
+        static void print(const std::vector<T> &A, int n, int m, int space);
     };
 
   }

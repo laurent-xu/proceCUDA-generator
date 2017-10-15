@@ -2,6 +2,7 @@
 #include <vector>
 #include <rendering/dual-contouring.hh>
 #include <rendering/utils/nm-matrix.hpp>
+#include <rendering/qr-decomposition.hpp>
 
 void testMatrixNM() {
   int n1 = 3, m1 = 4;
@@ -31,6 +32,40 @@ void testMatrixNM() {
   std::cout << "Matrix F: extract E" << std::endl;
   auto F = rendering::utils::nmMatrix<float>::extract(E, 2, 1, 4, 4, 6);
   rendering::utils::nmMatrix<float>::print(F, 2, 2);
+}
+
+void testQRDecomposition() {
+  float a1[] = { 6, 5, 0, 5, 1, 4, 0, 4, 3 };
+  std::vector<rendering::data_t> m1;
+  m1.assign(a1, a1 + 9);
+  std::cout << "Start matrix:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(m1, 3, 3, 12);
+  std::cout << std::endl;
+  rendering::QRDecomposition qrd1(m1, 3, 3);
+  std::cout << "Processed matrix:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.getProcessedMatrix(), 3, 3, 12);
+  std::cout << std::endl;
+  std::cout << "A^:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.extractAa(), 2, 2, 12);
+  std::cout << std::endl;
+  std::cout << "B^:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.extractBb(), 2, 1, 12);
+  std::cout << std::endl;
+  std::cout << "r: " << qrd1.getR() << std::endl;
+
+  float a2[] = { -1, 9, 2, 8, 7, 5, 6, -5, 7, 2, -9, 0, 1, 2, -3 };
+  std::vector<rendering::data_t> m2;
+  m2.assign(a2, a2 + 15);
+  std::cout << "Start matrix:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(m2, 3, 5, 12);
+  std::cout << std::endl;
+  rendering::QRDecomposition qrd2(m2, 3, 5);
+  std::cout << "Processed matrix:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.getProcessedMatrix(), 3, 5, 12);
+  std::cout << std::endl;
+  std::cout << "A^:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.extractAa(), 3, 4, 12);
+  std::cout << std::endl;
 }
 
 void testHermiteanComputation() {
@@ -77,7 +112,8 @@ void testHermiteanComputation() {
 }
 
 int main() {
-  testMatrixNM();
+  // testMatrixNM();
+  testQRDecomposition();
   // testHermiteanComputation();
   return 0;
 }
