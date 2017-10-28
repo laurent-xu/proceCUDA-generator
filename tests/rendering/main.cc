@@ -6,14 +6,14 @@
 #include <density/Sphere.hh>
 
 void testSphere() {
-  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(5, 5, 0), F3::dist_t(5));
+  auto sphere = make_sphere_example({0, 0, 0}, 1., {5, 5, 0}, 5.);
 }
 
 void testMatrixNM() {
   int n1 = 3, m1 = 4;
   int n2 = 4, m2 = 3;
-  int a[n1 * m1] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-  int b[n2 * m2] = { 4, 7, 3, 6, 9, 1, 11, 12, 10, 2, 8, 5 };
+  int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  int b[] = { 4, 7, 3, 6, 9, 1, 11, 12, 10, 2, 8, 5 };
   std::vector<float> A;
   std::vector<float> B;
   A.assign(a, a + n1 * m1);

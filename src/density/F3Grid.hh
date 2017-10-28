@@ -21,10 +21,10 @@ class GridF3;
 class GridF3Data
 {
 public:
-  using data_t = std::shared_ptr<GridF3Data>;
-  using const_data_t = std::shared_ptr<const GridF3Data>;
+  using grid_t = std::shared_ptr<GridF3Data>;
+  using const_grid_t = std::shared_ptr<const GridF3Data>;
 
-  static data_t get_grid()
+  static grid_t get_grid()
   {
     if (!free_.empty())
     {
@@ -35,14 +35,14 @@ public:
     return std::make_shared<GridF3Data>();
   }
 
-  static void release(const data_t& data)
+  static void release(const grid_t& data)
   {
     free_.push_back(data);
   }
 
 private:
   friend class GridF3;
-  static std::vector<data_t> free_;
+  static std::vector<grid_t> free_;
   F3 points_[GRIDSIZE][GRIDSIZE][GRIDSIZE];
 };
 
@@ -51,8 +51,8 @@ class GridF3
 public:
   using dist_t = F3::val_t;
   using vec3_t = F3::vec3_t;
-  using data_t = GridF3Data::data_t;
-  using const_data_t = GridF3Data::const_data_t;
+  using grid_t = GridF3Data::grid_t;
+  using const_grid_t = GridF3Data::const_grid_t;
 
   GridF3(const dist_t& precision, const vec3_t& offset)
     : data_(GridF3Data::get_grid()),
@@ -81,18 +81,18 @@ public:
     return offset_ + vec3_t(x, y, z) * precision_;
   }
 
-  data_t get_grid()
+  grid_t get_grid()
   {
     return data_;
   }
 
-  const_data_t get_grid() const
+  const_grid_t get_grid() const
   {
     return std::const_pointer_cast<const GridF3Data>(data_);
   }
 
 private:
-  GridF3Data::data_t data_;
+  GridF3Data::grid_t data_;
   dist_t precision_;
   vec3_t offset_;
 };
