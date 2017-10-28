@@ -3,6 +3,11 @@
 #include <rendering/dual-contouring.hh>
 #include <rendering/utils/nm-matrix.hpp>
 #include <rendering/qr-decomposition.hpp>
+#include <density/Sphere.hh>
+
+void testSphere() {
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(5, 5, 0), F3::dist_t(5));
+}
 
 void testMatrixNM() {
   int n1 = 3, m1 = 4;
@@ -117,6 +122,7 @@ void testHermiteanComputation() {
 int main() {
   //testMatrixNM();
   //testQRDecomposition();
-  testHermiteanComputation();
+  //testHermiteanComputation();
+  testSphere();
   return 0;
 }
