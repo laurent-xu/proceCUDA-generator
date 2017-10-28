@@ -12,14 +12,14 @@ namespace rendering {
   struct point_t {
     point_t() {}
     point_t(float x, float y, float z) : x(x), y(y), z(z) {}
-    float x = 0;
-    float y = 0;
-    float z = 0;
+    data_t x = 0;
+    data_t y = 0;
+    data_t z = 0;
   };
 
   struct node_t {
     node_t(int value, point_t gradient) : value(value), gradient(gradient) {}
-    int value = -1;
+    data_t value = -1;
     point_t gradient;
     point_t min;
     point_t vertex_pos;
@@ -35,6 +35,7 @@ namespace rendering {
     private:
       void _initSurfaceNodes();
       void _computeIntersections();
+      data_t _computeIntersectionOffset(data_t a, data_t b);
       void _computeVertices();
       point_t _computeVerticeForNode(int x, int y, int z);
       void _registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,

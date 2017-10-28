@@ -66,6 +66,9 @@ void testQRDecomposition() {
   std::cout << "A^:" << std::endl;
   rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.extractAa(), 3, 4, 12);
   std::cout << std::endl;
+  std::cout << "b^:" << std::endl;
+  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.extractBb(), 3, 1, 12);
+  std::cout << std::endl;
 }
 
 void testHermiteanComputation() {
@@ -112,8 +115,8 @@ void testHermiteanComputation() {
 }
 
 int main() {
-  // testMatrixNM();
-  testQRDecomposition();
-  // testHermiteanComputation();
+  //testMatrixNM();
+  //testQRDecomposition();
+  testHermiteanComputation();
   return 0;
 }
