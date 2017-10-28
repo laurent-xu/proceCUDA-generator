@@ -8,7 +8,7 @@ namespace glm
   T normalize_safe(const T& v)
   {
     auto len = glm::length(v);
-    if (len < EPSILON)
+    if (len > EPSILON)
       return glm::normalize(v);
     return T();
   }
