@@ -25,8 +25,6 @@ namespace rendering {
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
           node.min = point_t(x * _nodeSize, y * _nodeSize, z * _nodeSize);
-          if (pointContainsFeature(x, y, z))
-            node.value = 0;
         }
   }
 
@@ -34,17 +32,25 @@ namespace rendering {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
-          auto &node = _grid[z][y * _dimensions.x + x];
-          auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
-          if (node.value == 0) {  // Surface node
-            if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value != densityNode.value)
-              node.intersections.x = _nodeSize / 2;
-            if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value != densityNode.value)
-              node.intersections.y =  _nodeSize / 2;
-            if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value != densityNode.value)
-              node.intersections.z = _nodeSize / 2;
+          if (pointContainsFeature(x, y, z)) {
+            auto &node = _grid[z][y * _dimensions.x + x];
+            auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
+            // TODO: Value = 0 ?
+            if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
+              node.intersections.x = node.min.x + _computeIntersectionOffset(
+                  densityNode.value, _densityGrid[z][y * _dimensions.x + x + 1].value);
+            if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
+              node.intersections.y = node.min.y + _computeIntersectionOffset(
+                  densityNode.value, _densityGrid[z][(y + 1) * _dimensions.x + x].value);
+            if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0)
+              node.intersections.y = node.min.z + _computeIntersectionOffset(
+                  densityNode.value, _densityGrid[z + 1][y * _dimensions.x + x].value);
           }
         }
+  }
+
+  data_t HermitianGrid::_computeIntersectionOffset(data_t a, data_t b) {
+    return -a / b - a;
   }
 
   void HermitianGrid::_computeVertices() {
@@ -74,8 +80,11 @@ namespace rendering {
     QRDecomposition qrd(Ab, (int) (Ab.size() / 4), 4);
     auto QAb = qrd.getProcessedMatrix();
     auto xA = qrd.extractAa();
+    utils::nmMatrix<data_t>::print(xA, 3, 3, 12);
     auto xb = qrd.extractBb();
+    utils::nmMatrix<data_t>::print(xb, 3, 1, 12);
     auto r = qrd.getR();
+    std::cout << r << std::endl;
     return point_t(0, 0, 0);
   }
 
