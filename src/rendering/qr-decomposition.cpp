@@ -36,11 +36,11 @@ namespace rendering {
   }
 
   std::vector<data_t> QRDecomposition::extractAa() {
-    return utils::nmMatrix<data_t>::extract(_matrix, 0, 0, _m - 1, std::min(_m - 1, _n), _m);
+    return utils::nmMatrix::extract(_matrix, 0, 0, _m - 1, std::min(_m - 1, _n), _m);
   }
 
   std::vector<data_t> QRDecomposition::extractBb() {
-    return utils::nmMatrix<data_t>::extract(_matrix, _m - 1, 0, _m, _m - 1, _m);
+    return utils::nmMatrix::extract(_matrix, _m - 1, 0, _m, _m - 1, _m);
   }
 
   data_t QRDecomposition::getR() {

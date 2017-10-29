@@ -12,8 +12,22 @@
 namespace rendering {
 
   HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize)
-      : _grid(grid), _densityGrid(grid), _dimensions(dimensions), _nodeSize(nodeSize)
+      : _dimensions(dimensions), _nodeSize(nodeSize)
   {
+    _initSurfaceNodes();
+    _computeIntersections();
+    _computeVertices();
+  }
+
+
+  HermitianGrid::HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize) {
+    for (size_t k = 0; k < dimensions.z; k++) {
+      _densityGrid.push_back(std::vector<node_t>());
+      for (size_t i = 0; i < dimensions.y; i++)
+        for (size_t j = 0; j < dimensions.x; j++)
+          _densityGrid[k].push_back(gridF3.at(j, i, k));
+    }
+    _grid = _densityGrid;
     _initSurfaceNodes();
     _computeIntersections();
     _computeVertices();
@@ -76,13 +90,13 @@ namespace rendering {
           _registerIntersectionsForVertex(A, b, N, getValueAt(x + i, y + j, z + k),
                                           i != 1, j != 1, k != 1);
         }
-    auto Ab = utils::nmMatrix<data_t>::append(A, b, (int) b.size(), 3, 1);
+    auto Ab = utils::nmMatrix::append(A, b, (int) b.size(), 3, 1);
     QRDecomposition qrd(Ab, (int) (Ab.size() / 4), 4);
     auto QAb = qrd.getProcessedMatrix();
     auto xA = qrd.extractAa();
-    utils::nmMatrix<data_t>::print(xA, 3, 3, 12);
+    utils::nmMatrix::print(xA, 3, 3, 12);
     auto xb = qrd.extractBb();
-    utils::nmMatrix<data_t>::print(xb, 3, 1, 12);
+    utils::nmMatrix::print(xb, 3, 1, 12);
     auto r = qrd.getR();
     std::cout << r << std::endl;
     return point_t(0, 0, 0);
@@ -110,7 +124,7 @@ namespace rendering {
     std::vector<data_t> pi;
     pi.assign(p, p + 3);
     std::vector<data_t> ni = N;
-    data_t np = utils::nmMatrix<data_t>::multiply(ni, pi, 1, 3, 3, 1)[0];
+    data_t np = utils::nmMatrix::multiply(ni, pi, 1, 3, 3, 1)[0];
     b.push_back(np);
   }
 

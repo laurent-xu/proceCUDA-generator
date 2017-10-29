@@ -6,31 +6,17 @@
 
 #include <vector>
 #include <glm/detail/type_mat.hpp>
+#include <density/F3Grid.hh>
+#include <rendering/node.hpp>
 #include "options.hpp"
 
 namespace rendering {
-  struct point_t {
-    point_t() {}
-    point_t(float x, float y, float z) : x(x), y(y), z(z) {}
-    data_t x = 0;
-    data_t y = 0;
-    data_t z = 0;
-  };
-
-  struct node_t {
-    node_t(int value, point_t gradient) : value(value), gradient(gradient) {}
-    data_t value = -1;
-    point_t gradient;
-    point_t min;
-    point_t vertex_pos;
-    point_t intersections;
-    int vbo_idx;
-  };
 
   class HermitianGrid {
 
     public:
       HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize);
+      HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize);
 
     private:
       void _initSurfaceNodes();
@@ -58,7 +44,7 @@ namespace rendering {
 
     private:
       std::vector<std::vector<node_t>> _grid;  // _grid[z][y * _width + x]
-      const std::vector<std::vector<node_t>> _densityGrid;  // _grid[z][y * _width + x]
+      std::vector<std::vector<node_t>> _densityGrid;  // _grid[z][y * _width + x]
       point_t _dimensions;
       float _nodeSize;
   };

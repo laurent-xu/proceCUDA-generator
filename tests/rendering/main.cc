@@ -5,11 +5,20 @@
 #include <rendering/qr-decomposition.hpp>
 #include <density/Sphere.hh>
 
+using data_t = rendering::data_t;
+using point_t = rendering::point_t;
+using node_t = rendering::node_t;
+using nmMatrix = rendering::utils::nmMatrix;
+
 void testSphere() {
-  auto sphere = make_sphere_example({0, 0, 0}, 1., {5, 5, 0}, 5.);
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(10, 10, 0), F3::dist_t(10));
+  rendering::HermitianGrid
+      hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
+  rendering::utils::nmMatrix::print(hermitianGrid.getGrid()[0], 32, 32);
 }
 
 void testMatrixNM() {
+  using nmMatrix = rendering::utils::nmMatrix;
   int n1 = 3, m1 = 4;
   int n2 = 4, m2 = 3;
   int a[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -19,60 +28,60 @@ void testMatrixNM() {
   A.assign(a, a + n1 * m1);
   B.assign(b, b + n2 * m2);
   std::cout << "Matrix A:" << std::endl;
-  rendering::utils::nmMatrix<float>::print(A, n1, m1);
+  nmMatrix::print(A, n1, m1);
   std::cout << "Matrix B:" << std::endl;
-  rendering::utils::nmMatrix<float>::print(B, n2, m2);
+  nmMatrix::print(B, n2, m2);
   std::cout << "Matrix C = A * B:" << std::endl;
-  auto C = rendering::utils::nmMatrix<float>::multiply(A, B, n1, m1, n2, m2);
-  rendering::utils::nmMatrix<float>::print(C, n1, m2);
+  auto C = nmMatrix::multiply(A, B, n1, m1, n2, m2);
+  nmMatrix::print(C, n1, m2);
   std::cout << "Matrix A^t:" << std::endl;
-  auto At = rendering::utils::nmMatrix<float>::transpose(A, n1, m1);
-  rendering::utils::nmMatrix<float>::print(At, m1, n1);
+  auto At = nmMatrix::transpose(A, n1, m1);
+  nmMatrix::print(At, m1, n1);
   std::cout << "Matrix D: A^t + B" << std::endl;
-  auto D = rendering::utils::nmMatrix<float>::add(At, B, n2, m2);
-  rendering::utils::nmMatrix<float>::print(D, n2, m2);
+  auto D = nmMatrix::add(At, B, n2, m2);
+  nmMatrix::print(D, n2, m2);
   std::cout << "Matrix E: D::B" << std::endl;
-  auto E = rendering::utils::nmMatrix<float>::append(D, B, n2, m2, m2);
-  rendering::utils::nmMatrix<float>::print(E, n2, m2 + m2);
+  auto E = nmMatrix::append(D, B, n2, m2, m2);
+  nmMatrix::print(E, n2, m2 + m2);
   std::cout << "Matrix F: extract E" << std::endl;
-  auto F = rendering::utils::nmMatrix<float>::extract(E, 2, 1, 4, 4, 6);
-  rendering::utils::nmMatrix<float>::print(F, 2, 2);
+  auto F = nmMatrix::extract(E, 2, 1, 4, 4, 6);
+  nmMatrix::print(F, 2, 2);
 }
 
 void testQRDecomposition() {
   float a1[] = { 6, 5, 0, 5, 1, 4, 0, 4, 3 };
-  std::vector<rendering::data_t> m1;
+  std::vector<data_t> m1;
   m1.assign(a1, a1 + 9);
   std::cout << "Start matrix:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(m1, 3, 3, 12);
+  nmMatrix::print(m1, 3, 3, 12);
   std::cout << std::endl;
   rendering::QRDecomposition qrd1(m1, 3, 3);
   std::cout << "Processed matrix:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.getProcessedMatrix(), 3, 3, 12);
+  nmMatrix::print(qrd1.getProcessedMatrix(), 3, 3, 12);
   std::cout << std::endl;
   std::cout << "A^:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.extractAa(), 2, 2, 12);
+  nmMatrix::print(qrd1.extractAa(), 2, 2, 12);
   std::cout << std::endl;
   std::cout << "B^:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd1.extractBb(), 2, 1, 12);
+  nmMatrix::print(qrd1.extractBb(), 2, 1, 12);
   std::cout << std::endl;
   std::cout << "r: " << qrd1.getR() << std::endl;
 
   float a2[] = { -1, 9, 2, 8, 7, 5, 6, -5, 7, 2, -9, 0, 1, 2, -3 };
-  std::vector<rendering::data_t> m2;
+  std::vector<data_t> m2;
   m2.assign(a2, a2 + 15);
   std::cout << "Start matrix:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(m2, 3, 5, 12);
+  nmMatrix::print(m2, 3, 5, 12);
   std::cout << std::endl;
   rendering::QRDecomposition qrd2(m2, 3, 5);
   std::cout << "Processed matrix:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.getProcessedMatrix(), 3, 5, 12);
+  nmMatrix::print(qrd2.getProcessedMatrix(), 3, 5, 12);
   std::cout << std::endl;
   std::cout << "A^:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.extractAa(), 3, 4, 12);
+  nmMatrix::print(qrd2.extractAa(), 3, 4, 12);
   std::cout << std::endl;
   std::cout << "b^:" << std::endl;
-  rendering::utils::nmMatrix<rendering::data_t>::print(qrd2.extractBb(), 3, 1, 12);
+  nmMatrix::print(qrd2.extractBb(), 3, 1, 12);
   std::cout << std::endl;
 }
 
