@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-namespace density {}
-
 struct F3
 {
   using val_t = double;
