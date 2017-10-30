@@ -33,11 +33,11 @@ namespace rendering {
     point_t min;
     point_t vertex_pos;
     point_t intersections;
-    int vbo_idx;
+    int vbo_idx = -1;
   };
 
   inline std::ostream &operator<<(std::ostream &os, const node_t &n) {
-    os << "(" << n.value /*<< "/" << n.gradient << "/" << n.min << "/" << n.intersections */<< ")";
+    os << "(" << n.value << "/" << n.gradient << "/" << n.min << "/" << n.intersections << ")";
     return os;
   }
 }

@@ -8,6 +8,7 @@
 #include <glm/detail/type_mat.hpp>
 #include <density/F3Grid.hh>
 #include <rendering/node.hpp>
+#include <GL/gl.h>
 #include "options.hpp"
 
 namespace rendering {
@@ -32,8 +33,11 @@ namespace rendering {
 
     public:
       bool pointContainsFeature(int x, int y, int z);
+      bool isSurface(int x, int y, int z);
       const node_t &getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
       point_t getDimensions() { return _dimensions; }
+      std::vector<GLfloat> computeVertices(float scale);
+      std::vector<GLuint> computeEBO();
 
     public:
       static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
@@ -47,10 +51,6 @@ namespace rendering {
       std::vector<std::vector<node_t>> _densityGrid;  // _grid[z][y * _width + x]
       point_t _dimensions;
       float _nodeSize;
-  };
-
-  class DualContouring {
-
   };
 
 }

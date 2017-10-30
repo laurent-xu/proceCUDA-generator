@@ -9,8 +9,8 @@ static inline GridF3 make_sphere_example(const F3::vec3_t& grid_origin,
 {
   auto result = GridF3(precision, grid_origin);
   for (size_t x = 0; x < result.dim_size(); ++x)
-    for (size_t y = 0; x < result.dim_size(); ++x)
-      for (size_t z = 0; x < result.dim_size(); ++x)
+    for (size_t y = 0; y < result.dim_size(); ++y)
+      for (size_t z = 0; z < result.dim_size(); ++z)
       {
         auto position = result.to_position(x, y, z);
         auto& f3 = result.at(x, y, z);

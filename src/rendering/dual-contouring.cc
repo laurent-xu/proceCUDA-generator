@@ -20,7 +20,9 @@ namespace rendering {
   }
 
 
-  HermitianGrid::HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize) {
+  HermitianGrid::HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize)
+      : _dimensions(dimensions), _nodeSize(nodeSize)
+  {
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
@@ -30,7 +32,7 @@ namespace rendering {
     _grid = _densityGrid;
     _initSurfaceNodes();
     _computeIntersections();
-    _computeVertices();
+    // _computeVertices();
   }
 
   void HermitianGrid::_initSurfaceNodes() {
@@ -46,20 +48,18 @@ namespace rendering {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
-          if (pointContainsFeature(x, y, z)) {
-            auto &node = _grid[z][y * _dimensions.x + x];
-            auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
-            // TODO: Value = 0 ?
-            if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
-              node.intersections.x = node.min.x + _computeIntersectionOffset(
-                  densityNode.value, _densityGrid[z][y * _dimensions.x + x + 1].value);
-            if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
-              node.intersections.y = node.min.y + _computeIntersectionOffset(
-                  densityNode.value, _densityGrid[z][(y + 1) * _dimensions.x + x].value);
-            if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0)
-              node.intersections.y = node.min.z + _computeIntersectionOffset(
-                  densityNode.value, _densityGrid[z + 1][y * _dimensions.x + x].value);
-          }
+          auto &node = _grid[z][y * _dimensions.x + x];
+          auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
+          // TODO: Value = 0 ?
+          if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
+            node.intersections.x = node.min.x + _computeIntersectionOffset(
+                densityNode.value, _densityGrid[z][y * _dimensions.x + x + 1].value);
+          if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
+            node.intersections.y = node.min.y + _computeIntersectionOffset(
+                densityNode.value, _densityGrid[z][(y + 1) * _dimensions.x + x].value);
+          if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0)
+            node.intersections.y = node.min.z + _computeIntersectionOffset(
+                densityNode.value, _densityGrid[z + 1][y * _dimensions.x + x].value);
         }
   }
 
@@ -182,6 +182,75 @@ namespace rendering {
         std::cout << std::endl;
       }
     }
+  }
+
+  std::vector<GLfloat> HermitianGrid::computeVertices(float scale) {
+    std::vector<GLfloat> result;
+    int vbo_idx = 0;
+    for (int z = 0; z < _dimensions.z; z++) {
+      for (int y = 0; y < _dimensions.y; y++) {
+        for (int x = 0; x < _dimensions.x; x++) {
+          if (isSurface(x, y, z)) {
+            result.push_back((x - (float) _dimensions.x / 2.0f) * scale);
+            result.push_back((y - (float) _dimensions.y / 2.0f) * scale);
+            result.push_back((z - (float) _dimensions.z / 2.0f) * scale);
+            _grid[z][y * _dimensions.x + x].vbo_idx = vbo_idx++;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  bool HermitianGrid::isSurface(int x, int y, int z) {
+    auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
+    return  (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
+            || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
+            || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
+  }
+
+  std::vector<GLuint> HermitianGrid::computeEBO() {
+    std::vector<GLuint> result;
+    for (int z = 0; z < _dimensions.z; z++) {
+      for (int y = 0; y < _dimensions.y; y++) {
+        for (int x = 0; x < _dimensions.x; x++) {
+          auto &node = _grid[z][y * _dimensions.x + x];
+          if (node.vbo_idx != -1) {
+            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).vbo_idx != -1
+              && y + 1 < _dimensions.y && getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
+              result.push_back(getValueAt(x + 1, y, z).vbo_idx);
+              result.push_back(getValueAt(x + 1, y + 1, z).vbo_idx);
+            }
+            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).vbo_idx != -1
+                && x + 1 < _dimensions.x && getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
+              result.push_back(getValueAt(x + 1, y + 1, z).vbo_idx);
+              result.push_back(getValueAt(x, y + 1, z).vbo_idx);
+            }
+            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).vbo_idx != -1
+                && z + 1 < _dimensions.z && getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
+              result.push_back(getValueAt(x + 1, y, z).vbo_idx);
+              result.push_back(getValueAt(x + 1, y, z + 1).vbo_idx);
+            }
+            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1
+                && x + 1 < _dimensions.x && getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
+              result.push_back(getValueAt(x + 1, y, z + 1).vbo_idx);
+              result.push_back(getValueAt(x, y, z + 1).vbo_idx);
+            }
+            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).vbo_idx != -1
+                && z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1) {
+              result.push_back(getValueAt(x, y + 1, z).vbo_idx);
+              result.push_back(getValueAt(x, y, z + 1).vbo_idx);
+            }
+            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1
+                && y + 1 < _dimensions.y && getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
+              result.push_back(getValueAt(x, y + 1, z + 1).vbo_idx);
+              result.push_back(getValueAt(x, y, z + 1).vbo_idx);
+            }
+          }
+        }
+      }
+    }
+    return result;
   }
 
 }

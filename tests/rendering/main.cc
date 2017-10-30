@@ -1,9 +1,16 @@
 #include <iostream>
 #include <vector>
+#include <GL/glew.h>
 #include <rendering/dual-contouring.hh>
 #include <rendering/utils/nm-matrix.hpp>
 #include <rendering/qr-decomposition.hpp>
 #include <density/Sphere.hh>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <rendering/viewer/camera.hh>
+#include <rendering/viewer/shader.hh>
 
 using data_t = rendering::data_t;
 using point_t = rendering::point_t;
@@ -11,10 +18,71 @@ using node_t = rendering::node_t;
 using nmMatrix = rendering::utils::nmMatrix;
 
 void testSphere() {
+  // Creating window
+  sf::Window *window = new sf::Window(sf::VideoMode(800, 600), "TestSphere",
+                                      sf::Style::Default, sf::ContextSettings(32));
+  window->setVerticalSyncEnabled(true);
+  glEnable(GL_DEPTH_TEST);
+  if (glewInit() == GLEW_OK)
+    std::cout << "Glew initialized successfully" << std::endl;
+
   auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(10, 10, 0), F3::dist_t(10));
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
-  rendering::utils::nmMatrix::print(hermitianGrid.getGrid()[0], 32, 32);
+  // rendering::utils::nmMatrix::print(hermitianGrid.getGrid()[0], 32, 32);
+  auto vertices_vect = hermitianGrid.computeVertices(0.2f);
+  size_t vertices_size = vertices_vect.size();
+  GLfloat *vertices = &vertices_vect[0];
+  auto indices_vect = hermitianGrid.computeEBO();
+  size_t indices_size = indices_vect.size();
+  GLuint *indices = &indices_vect[0];
+
+  glm::mat4 model;
+  glm::mat4 lightModel;
+  glm::mat4 view;
+  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  Camera camera;
+  // Note that we're translating the scene in the reverse direction of where we want to move
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+  glm::mat4 projection;
+  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+  Shader shader("resources/shaders/vertex_shader.glsl",
+                "resources/shaders/fragment_shader.glsl");
+  Shader lightShader("resources/shaders/light_vertex_shader.glsl",
+                     "resources/shaders/light_fragment_shader.glsl");
+
+  GLuint EBO;
+  glGenBuffers(1, &EBO);
+  // VAO use
+  GLuint VAO;
+  glGenVertexArrays(1, &VAO);
+  // Copy our vertices array in a buffer for OpenGL to use
+  GLuint VBO; // Vertex Buffer Object
+  glGenBuffers(1, &VBO);
+  glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                          (GLvoid *)0);
+    glEnableVertexAttribArray(0);
+  glBindVertexArray(0);
+
+  /*
+  for (size_t i = 0; i < indices_size; i++) {
+    if (i % 3 == 0)
+      std::cout << std::endl;
+    std::cout << indices[i] << " ";
+  }
+  for (size_t i = 0; i < vertices_size; i++) {
+    if (i % 3 == 0)
+      std::cout << std::endl;
+    std::cout << vertices[i] << " ";
+  }
+  */
 }
 
 void testMatrixNM() {
