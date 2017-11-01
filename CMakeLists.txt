@@ -22,13 +22,6 @@ if (!OPENGL_FOUND)
 endif()
 include_directories(${GLEW_INCLUDE_DIRS})
 
-# Detect and add SFML
-find_package(SFML 2 REQUIRED system window graphics network audio)
-if (!SFML_FOUND)
-    MESSAGE("SFML NOT FOUND")
-endif()
-include_directories(${SFML_INCLUDE_DIRS})
-
 # C++14 and extra flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++1y -O0")
 
