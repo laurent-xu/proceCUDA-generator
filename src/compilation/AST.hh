@@ -10,19 +10,25 @@ class Node
 {
 public:
   using astnode_t = std::shared_ptr<Node>;
+  Node(const std::string& type): output_name(type + std::to_string(id++)) {}
   ~Node() = default;
   virtual void accept(Visitor& v) = 0;
   static astnode_t parse(const std::string& str);
   static astnode_t parse(ParsingStringStream& parsing_stream);
 
   std::string output_name;
+  static size_t id;
 };
 
 class AdditionNode: public Node
 {
 public:
   using astnode_t = Node::astnode_t;
-  AdditionNode(const std::vector<astnode_t>& inputs): inputs(inputs) {}
+  AdditionNode(const std::vector<astnode_t>& inputs)
+    : Node("add"),
+      inputs(inputs)
+  {
+  }
   static astnode_t parse(ParsingStringStream& parsing_stream);
 
   virtual void accept(Visitor& v) override;
@@ -37,7 +43,8 @@ public:
   ClampNode(const std::string& min,
             const std::string& max,
             const astnode_t& input)
-    : min(min),
+    : Node("clamp"),
+      min(min),
       max(max),
       input(input)
   {
@@ -54,7 +61,11 @@ public:
 class ConstantNode: public Node
 {
 public:
-  ConstantNode(const std::string& val): val(val) {}
+  ConstantNode(const std::string& val)
+    : Node("constant"),
+      val(val)
+  {
+  }
   static astnode_t parse(ParsingStringStream& parsing_stream);
 
   virtual void accept(Visitor& v) override;
@@ -66,7 +77,11 @@ class MultiplyNode: public Node
 {
 public:
   using astnode_t = Node::astnode_t;
-  MultiplyNode(const std::vector<astnode_t>& inputs): inputs(inputs) {}
+  MultiplyNode(const std::vector<astnode_t>& inputs)
+    : Node("multiply"),
+      inputs(inputs)
+  {
+  }
   static astnode_t parse(ParsingStringStream& parsing_stream);
 
   virtual void accept(Visitor& v) override;
@@ -77,12 +92,18 @@ public:
 class PerlinNode: public Node
 {
 public:
-  PerlinNode(const std::string& normalization): normalization(normalization) {}
+  PerlinNode(const std::string& normalization, const std::string& seed)
+    : Node("perlin"),
+      normalization(normalization),
+      seed(seed)
+  {
+  }
   static astnode_t parse(ParsingStringStream& parsing_stream);
 
   virtual void accept(Visitor& v) override;
 
   const std::string normalization;
+  const std::string seed;
 };
 
 class PolynomNode: public Node
@@ -90,7 +111,8 @@ class PolynomNode: public Node
 public:
   using astnode_t = Node::astnode_t;
   PolynomNode(const astnode_t& input, const std::vector<std::string>& coef)
-    : input(input),
+    : Node("polynom"),
+      input(input),
       coef(coef)
   {
   }
@@ -109,12 +131,15 @@ public:
   SpatializeCubeMapNode(const std::string& center_x,
                         const std::string& center_y,
                         const std::string& center_z,
+                        const std::string& radius,
                         const std::string& min_radius,
                         const std::string& max_radius,
                         const astnode_t& input)
-    : center_x(center_x),
+    : Node("spatializecubemap"),
+      center_x(center_x),
       center_y(center_y),
       center_z(center_z),
+      radius(radius),
       min_radius(min_radius),
       max_radius(max_radius),
       input(input)
@@ -127,6 +152,7 @@ public:
   const std::string center_x;
   const std::string center_y;
   const std::string center_z;
+  const std::string radius;
   const std::string min_radius;
   const std::string max_radius;
   const astnode_t input;
@@ -139,12 +165,15 @@ public:
   SpatializeNode(const std::string& center_x,
                  const std::string& center_y,
                  const std::string& center_z,
+                 const std::string& radius,
                  const std::string& min_radius,
                  const std::string& max_radius,
                  const astnode_t& input)
-    : center_x(center_x),
+    : Node("spatialize"),
+      center_x(center_x),
       center_y(center_y),
       center_z(center_z),
+      radius(radius),
       min_radius(min_radius),
       max_radius(max_radius),
       input(input)
@@ -157,6 +186,7 @@ public:
   const std::string center_x;
   const std::string center_y;
   const std::string center_z;
+  const std::string radius;
   const std::string min_radius;
   const std::string max_radius;
   const astnode_t input;
@@ -164,15 +194,16 @@ public:
 
 class SphereNode: public Node
 {
-  public:
-    SphereNode(const std::string& center_x,
-               const std::string& center_y,
-               const std::string& center_z,
-               const std::string& radius)
-      : center_x(center_x),
-        center_y(center_y),
-        center_z(center_z),
-        radius(radius)
+public:
+  SphereNode(const std::string& center_x,
+             const std::string& center_y,
+             const std::string& center_z,
+             const std::string& radius)
+  : Node("sphere"),
+    center_x(center_x),
+    center_y(center_y),
+    center_z(center_z),
+    radius(radius)
   {
   }
   static astnode_t parse(ParsingStringStream& parsing_stream);

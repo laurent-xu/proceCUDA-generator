@@ -1,6 +1,8 @@
 #include "AST.hh"
 #include "Visitor.hh"
 
+size_t Node::id = 0;
+
 void AdditionNode::accept(Visitor& v)
 {
   v.visit(*this);

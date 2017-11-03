@@ -36,7 +36,7 @@ public:
   bool has_token() { return index < lexemes.size(); }
   Lexeme peak_next_lexeme();
   Lexeme get_next_lexeme();
-  Lexeme get_next_lexeme_expected(Token expected);
+  Lexeme get_next_lexeme_expected(Token expected, const std::string& caller);
 
 private:
   std::vector<Lexeme> lexemes;

@@ -62,7 +62,7 @@ set(SFML_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-sys
 include_directories(${SFML_INCLUDE_DIRS})
 
 # C++14 and extra flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++1y -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++1y -O0 -g")
 
 # Sets library output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)

@@ -1,6 +1,8 @@
 set(COMPILATION_SOURCES ${DENSITY_SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/AST.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/AST.hh
+        ${CMAKE_CURRENT_SOURCE_DIR}/DotVisitor.hh
+        ${CMAKE_CURRENT_SOURCE_DIR}/DotVisitor.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/Visitor.hh
         ${CMAKE_CURRENT_SOURCE_DIR}/parser.hh
         ${CMAKE_CURRENT_SOURCE_DIR}/parser.cc
