@@ -5,6 +5,8 @@ project(ProceCUDA)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
+
+
 MESSAGE("glew not found, installing glew")
 execute_process(COMMAND git submodule update --init -- ThirdParties/glew
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
