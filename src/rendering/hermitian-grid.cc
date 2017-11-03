@@ -205,12 +205,5 @@ namespace rendering {
             || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
 
-  void
-  HermitianGrid::computeNormal(const point_t &p1, const point_t &p2, const point_t &p3,
-                               std::vector<data_t> &normals)
-  {
-    auto U = p2 - p1;
-  }
-
 }
 
