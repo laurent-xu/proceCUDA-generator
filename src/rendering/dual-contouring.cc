@@ -136,13 +136,13 @@ namespace rendering {
       for (int j = 0; j <= 1 && y + j < _dimensions.y; j += 1)
         for (int k = 0; k <= 1 && z + k < _dimensions.z; k += 1) {
           auto &node = _densityGrid[z + k][(y + j) * _dimensions.x + x + i];
-          if (node.value == -1) {
+          if (node.value >= 0) {
             if (nb_solid != 0)
               return true;
             else
               nb_air++;
           }
-          if (node.value == 1) {
+          if (node.value < 0) {
             if (nb_air != 0)
               return true;
             else
@@ -190,7 +190,7 @@ namespace rendering {
     for (int z = 0; z < _dimensions.z; z++) {
       for (int y = 0; y < _dimensions.y; y++) {
         for (int x = 0; x < _dimensions.x; x++) {
-          if (isSurface(x, y, z)) {
+          if (pointContainsFeature(x, y, z)) {
             auto &node = _grid[z][y * _dimensions.x + x];
             result.push_back((float &&) ((node.min.x - (float) _dimensions.x / 2.0f) * scale));
             result.push_back((float &&) ((node.min.y - (float) _dimensions.y / 2.0f) * scale));
@@ -217,8 +217,6 @@ namespace rendering {
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
           if (node.vbo_idx != -1) {
-            if (node.vbo_idx == 0)
-              std::cout << "coucou" << std::endl;
             if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).vbo_idx != -1
               && y + 1 < _dimensions.y && getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
               indices.push_back(getValueAt(x, y, z).vbo_idx);
@@ -244,10 +242,10 @@ namespace rendering {
               indices.push_back(getValueAt(x, y, z + 1).vbo_idx);
             }
             if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).vbo_idx != -1
-                && z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1) {
+                && z + 1 < _dimensions.z && getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
               indices.push_back(getValueAt(x, y, z).vbo_idx);
               indices.push_back(getValueAt(x, y + 1, z).vbo_idx);
-              indices.push_back(getValueAt(x, y, z + 1).vbo_idx);
+              indices.push_back(getValueAt(x, y + 1, z + 1).vbo_idx);
             }
             if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1
                 && y + 1 < _dimensions.y && getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
@@ -260,6 +258,13 @@ namespace rendering {
       }
     }
     return indices;
+  }
+
+  void
+  HermitianGrid::computeNormal(const point_t &p1, const point_t &p2, const point_t &p3,
+                               std::vector<data_t> &normals)
+  {
+    auto U = p2 - p1;
   }
 
 }

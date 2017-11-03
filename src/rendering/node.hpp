@@ -17,6 +17,33 @@ namespace rendering {
     data_t x = 0;
     data_t y = 0;
     data_t z = 0;
+
+    point_t &operator+=(const point_t &other) {
+      this->x += other.x;
+      this->y += other.y;
+      this->z += other.z;
+      return *this;
+    }
+
+    point_t &operator-=(const point_t &other) {
+      this->x -= other.x;
+      this->y -= other.y;
+      this->z -= other.z;
+      return *this;
+    }
+
+    const point_t operator+(const point_t &other) const {
+      auto result = *this;
+      result += other;
+      return result;
+    }
+
+    const point_t operator-(const point_t &other) const {
+      auto result = *this;
+      result -= other;
+      return result;
+    }
+
   };
 
   inline std::ostream &operator<<(std::ostream &os, const point_t &p) {

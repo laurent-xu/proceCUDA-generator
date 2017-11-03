@@ -29,41 +29,18 @@ void testCube() {
   if (glewInit() == GLEW_OK)
     std::cout << "Glew initialized successfully" << std::endl;
 
-  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(2));
+  //auto sphere = make_single_point(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16));
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(10));
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
 
-  auto vertices_vect = hermitianGrid.computeVertices(0.5f);
+  auto vertices_vect = hermitianGrid.computeVertices(0.1f);
   size_t vertices_size = vertices_vect.size();
   GLfloat *vertices = &vertices_vect[0];
-  for (size_t i = 0; i < vertices_size; i++) {
-    if (i % 3 == 0)
-      std::cout << std::endl;
-    std::cout << vertices[i] << " ";
-  }
-  std::cout << vertices_size << std::endl;
 
   auto indices_vect = hermitianGrid.computeEBO();
   size_t indices_size = indices_vect.size();
   GLuint *indices = &indices_vect[0];
-  for (size_t i = 0; i < indices_size; i++) {
-    if (i % 3 == 0)
-      std::cout << std::endl;
-    std::cout << indices[i] << " ";
-  }
-  std::cout << indices_size << std::endl;
-
-  /*
-  GLfloat vertices[] = {
-   0, -0.5, -1,
-   0.5, -0.5, -1,
-   0.5, 0, -1
-  };
-
-  GLuint indices[] = {
-      0, 1, 2
-  };
-   */
 
   glm::mat4 model;
   glm::mat4 view;
@@ -74,25 +51,21 @@ void testCube() {
   glm::mat4 projection;
   projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
-  Shader shader("resources/shaders/vertex_shader.glsl",
-                "resources/shaders/fragment_shader.glsl");
+  Shader shader("../resources/shaders/vertex_shader.glsl",
+                "../resources/shaders/fragment_shader.glsl");
 
   GLuint EBO;
   glGenBuffers(1, &EBO);
-  // VAO use
   GLuint VAO;
   glGenVertexArrays(1, &VAO);
-  // Copy our vertices array in a buffer for OpenGL to use
   GLuint VBO; // Vertex Buffer Object
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO); {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices_size * sizeof (GLfloat), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size, indices,
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          (GLvoid *) 0);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof (GLuint), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) 0);
     glEnableVertexAttribArray(0);
   } glBindVertexArray(0);
 
@@ -134,103 +107,7 @@ void testCube() {
                 camera.getPosition().z);
 
     glBindVertexArray(VAO); {
-      glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-    } glBindVertexArray(0);
-
-    window->display();
-  }
-  delete window;
-}
-
-void testSphere() {
-  // Creating window
-  sf::Window *window = new sf::Window(sf::VideoMode(800, 600), "TestSphere",
-                                      sf::Style::Default, sf::ContextSettings(32));
-  window->setVerticalSyncEnabled(true);
-  glEnable(GL_DEPTH_TEST);
-  if (glewInit() == GLEW_OK)
-    std::cout << "Glew initialized successfully" << std::endl;
-
-  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(2));
-  rendering::HermitianGrid
-      hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
-
-  auto vertices_vect = hermitianGrid.computeVertices(1.0f);
-  size_t vertices_size = vertices_vect.size();
-  GLfloat *vertices = &vertices_vect[0];
-
-  auto indices_vect = hermitianGrid.computeEBO();
-  size_t indices_size = indices_vect.size();
-  GLuint *indices = &indices_vect[0];
-
-  glm::mat4 model;
-  glm::mat4 view;
-  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-  Camera camera;
-  // Note that we're translating the scene in the reverse direction of where we want to move
-  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-  glm::mat4 projection;
-  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-  Shader shader("resources/shaders/vertex_shader.glsl",
-                "resources/shaders/fragment_shader.glsl");
-
-  GLuint EBO;
-  glGenBuffers(1, &EBO);
-  // VAO use
-  GLuint VAO;
-  glGenVertexArrays(1, &VAO);
-  // Copy our vertices array in a buffer for OpenGL to use
-  GLuint VBO; // Vertex Buffer Object
-  glGenBuffers(1, &VBO);
-  glBindVertexArray(VAO); {
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          (GLvoid *) 0);
-    glEnableVertexAttribArray(0);
-  } glBindVertexArray(0);
-
-  glClearColor(0.1, 0.1, 0.1, 1.0);
-  bool running = true;
-  sf::Clock clock;
-  sf::Clock rotationClock;
-  sf::Vector2f mousePosition(sf::Mouse::getPosition());
-  glm::vec3 lightPosBase = lightPos;
-  while (running) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    sf::Event event;
-    while (window->pollEvent(event))
-      if (event.type == sf::Event::Closed)
-        running = false;
-    updateCamera(camera, clock.getElapsedTime().asSeconds(), mousePosition);
-    clock.restart();
-    lightPos.x = lightPosBase.x + glm::cos(rotationClock.getElapsedTime().asSeconds());
-    lightPos.y = lightPosBase.y + glm::sin(rotationClock.getElapsedTime().asSeconds());
-    shader.Use();
-
-    GLint lightPosLoc = glGetUniformLocation(shader.getProgram(), "lightPos");
-    GLint objectColorLoc = glGetUniformLocation(shader.getProgram(), "objectColor");
-    GLint lightColorLoc  = glGetUniformLocation(shader.getProgram(), "lightColor");
-    glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-    glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f); // Also set light's color (white)
-    glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-
-    GLint modelLoc = glGetUniformLocation(shader.getProgram(), "model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    GLint viewLoc = glGetUniformLocation(shader.getProgram(), "view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-    GLint projLoc = glGetUniformLocation(shader.getProgram(), "projection");
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-    GLint viewerLocPos = glGetUniformLocation(shader.getProgram(), "viewerPos");
-    glUniform3f(viewerLocPos, camera.getPosition().x, camera.getPosition().y,
-                camera.getPosition().z);
-
-    glBindVertexArray(VAO); {
-      glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+      glDrawElements(GL_TRIANGLES, (GLsizei) indices_size, GL_UNSIGNED_INT, 0);
     } glBindVertexArray(0);
 
     window->display();
