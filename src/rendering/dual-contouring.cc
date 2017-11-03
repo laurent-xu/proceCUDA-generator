@@ -16,7 +16,7 @@ namespace rendering {
   {
     _initSurfaceNodes();
     _computeIntersections();
-    _computeVertices();
+    _computeContouringVertices();
   }
 
 
@@ -32,7 +32,7 @@ namespace rendering {
     _grid = _densityGrid;
     _initSurfaceNodes();
     _computeIntersections();
-    // _computeVertices();
+    // _computeContouringVertices();
   }
 
   void HermitianGrid::_initSurfaceNodes() {
@@ -67,7 +67,7 @@ namespace rendering {
     return -a / b - a;
   }
 
-  void HermitianGrid::_computeVertices() {
+  void HermitianGrid::_computeContouringVertices() {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
@@ -210,7 +210,7 @@ namespace rendering {
             || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
 
-  std::vector<GLuint> HermitianGrid::computeEBO() {
+  std::vector<GLuint> HermitianGrid::computeIndices() {
     std::vector<GLuint> indices;
     for (int z = 0; z < _dimensions.z; z++) {
       for (int y = 0; y < _dimensions.y; y++) {
@@ -260,11 +260,49 @@ namespace rendering {
     return indices;
   }
 
-  void
-  HermitianGrid::computeNormal(const point_t &p1, const point_t &p2, const point_t &p3,
-                               std::vector<data_t> &normals)
-  {
-    auto U = p2 - p1;
+  VerticesGrid HermitianGrid::generateVerticesGrid(float scale) {
+    auto vbo = computeVertices(scale);
+    auto ebo = computeIndices();
+    return VerticesGrid(vbo, ebo);
   }
 
+  void VerticesGrid::computeNormals() {
+    for (size_t i = 0; i < _vertices.size(); i += 9)
+      _computeNormal(point_t(_vertices[i], _vertices[i + 1], _vertices[i + 2]),
+                     point_t(_vertices[i + 3], _vertices[i + 4], _vertices[i + 5]),
+                             point_t(_vertices[i + 6], _vertices[i + 7], _vertices[i + 8]));
+  }
+
+  void
+  VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
+    auto U = p2 - p1;
+    auto V = p3 - p1;
+    data_t x = U.y * V.z - U.z * V.y;
+    data_t y = U.z * V.x - U.x * V.z;
+    data_t z = U.x * V.y - U.y * V.x;
+    _normals.push_back(x);
+    _normals.push_back(y);
+    _normals.push_back(z);
+
+    _normals.push_back(x);
+    _normals.push_back(y);
+    _normals.push_back(z);
+
+    _normals.push_back(x);
+    _normals.push_back(y);
+    _normals.push_back(z);
+  }
+
+  void VerticesGrid::computeVBO() {
+    std::cout << "normals " << _normals.size() << std::endl;
+    std::cout << "vertices " << _vertices.size() << std::endl;
+    for (size_t i = 0; i < _vertices.size(); i += 3) {
+      _vbo.push_back(_vertices[i]);
+      _vbo.push_back(_vertices[i + 1]);
+      _vbo.push_back(_vertices[i + 2]);
+      _vbo.push_back(_normals[i]);
+      _vbo.push_back(_normals[i + 1]);
+      _vbo.push_back(_normals[i + 2]);
+    }
+  }
 }
