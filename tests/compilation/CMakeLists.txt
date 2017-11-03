@@ -2,6 +2,6 @@ set(TEST_COMPILATION_SOURCES ${TEST_COMPILATION_SOURCES}
         main.cc)
 
 add_executable(test_compilation ${TEST_COMPILATION_SOURCES})
-target_link_libraries(test_dual_contouring; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
+target_link_libraries(test_compilation; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
 
 set(${TESTS_LIST} test_compilation PARENT_SCOPE)
