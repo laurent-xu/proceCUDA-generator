@@ -5,9 +5,18 @@
 
 namespace
 {
+  struct EnumClassHash
+  {
+    template <typename T>
+    std::size_t operator()(T t) const
+    {
+        return static_cast<std::size_t>(t);
+    }
+  };
+
   std::string token_to_string(Token type)
   {
-    std::unordered_map<Token, std::string> map =
+    std::unordered_map<Token, std::string, EnumClassHash> map =
     {
       {Token::ADDITION, "AdditionToken"},
       {Token::CLAMP, "ClampToken"},
