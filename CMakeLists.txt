@@ -28,9 +28,15 @@ set(GLM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glm
     CACHE PATH "glm include directory")
 include_directories(${GLM_INCLUDE_DIRS})
 
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
+execute_process(COMMAND git submodule update --init -- ThirdParties/glfw
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+execute_process(COMMAND cmake -DBUILD_SHARED_LIBS=ON .
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glfw)
+set(GLFW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glfw/include
+    CACHE PATH "glfw include directory")
 include_directories(${GLFW_INCLUDE_DIRS})
+set(GLFW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glfw/src/libglfw.so.3
+  CACHE PATH "glew lib directory")
 
 find_package(OpenGL REQUIRED)
 if (!OPENGL_FOUND)

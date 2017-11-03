@@ -7,3 +7,6 @@
 [submodule "ThirdParties/SFML"]
 	path = ThirdParties/SFML
 	url = git@github.com:laurent-xu/SFML.git
+[submodule "ThirdParties/glfw"]
+	path = ThirdParties/glfw
+	url = https://github.com/glfw/glfw
