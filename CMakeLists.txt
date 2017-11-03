@@ -22,6 +22,12 @@ set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/lib/libGLEW.so
   CACHE PATH "glew lib directory")
 include_directories(${GLEW_INCLUDE_DIRS})
 
+execute_process(COMMAND git submodule update --init -- ThirdParties/glm
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(GLM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glm
+    CACHE PATH "glm include directory")
+include_directories(${GLM_INCLUDE_DIRS})
+
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 include_directories(${GLFW_INCLUDE_DIRS})
