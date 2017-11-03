@@ -11,7 +11,7 @@
 
 namespace rendering {
 
-  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize)
+  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>>&, point_t dimensions, float nodeSize)
       : _dimensions(dimensions), _nodeSize(nodeSize)
   {
     _initSurfaceNodes();
