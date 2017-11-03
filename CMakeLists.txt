@@ -5,11 +5,21 @@ project(ProceCUDA)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-# Detect and add GLEW
-find_package(GLEW REQUIRED)
-if (!GLEW_FOUND)
-    MESSAGE("GLEW NOT FOUND")
-endif()
+MESSAGE("glew not found, installing glew")
+execute_process(COMMAND git submodule update --init -- ThirdParties/glew
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+execute_process(COMMAND make
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/auto)
+execute_process(COMMAND make
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew)
+set(GLEW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/include
+    CACHE PATH "glew include directory")
+set(GLEW_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/lib/libGLEW.so
+  CACHE PATH "glew lib directory")
+set(GLEW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/include
+    CACHE PATH "glew include directory")
+set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/glew/lib/libGLEW.so
+  CACHE PATH "glew lib directory")
 include_directories(${GLEW_INCLUDE_DIRS})
 
 find_package(PkgConfig REQUIRED)
