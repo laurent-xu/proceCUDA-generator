@@ -36,7 +36,24 @@ find_package(OpenGL REQUIRED)
 if (!OPENGL_FOUND)
     MESSAGE("OPENGL NOT FOUND")
 endif()
-include_directories(${GLEW_INCLUDE_DIRS})
+
+# Detect and add SFML
+MESSAGE("SFML NOT FOUND")
+execute_process(COMMAND git submodule update --init -- ThirdParties/SFML
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+execute_process(COMMAND cmake .
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML)
+execute_process(COMMAND make
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML)
+set(SFML_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/include
+  CACHE PATH "SFML include directory")
+set(SFML_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-system.so;
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-window.so;
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-graphics.so;
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-network.so;
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-audio.so
+    CACHE PATH "SFML lib directory")
+include_directories(${SFML_INCLUDE_DIRS})
 
 # C++14 and extra flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++1y -O0")
