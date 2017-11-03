@@ -1,0 +1,3 @@
+[submodule "ThirdParties/glew"]
+	path = ThirdParties/glew
+	url = https://github.com/nigels-com/glew
