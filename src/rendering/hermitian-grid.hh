@@ -43,6 +43,7 @@ namespace rendering {
       static void printHermitianGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
 
     private:
+      static void computeNormal(const point_t &p1, const point_t &p2, const point_t &p3, std::vector<data_t> &normals);
 
     public:
       const std::vector<std::vector<node_t>> &getGrid() const { return _grid; }

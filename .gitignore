@@ -1,6 +1,9 @@
 .idea/
 bin/
+<<<<<<< bf97f523c5099f8778ba5e12455a900172d3ae40
 build/
+=======
+>>>>>>> Rendering: Display surface vertices of a simple sphere without lighting
 cmake-build-debug
 *.o
 *.a
