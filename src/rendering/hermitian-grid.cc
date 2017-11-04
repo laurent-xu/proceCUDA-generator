@@ -26,7 +26,7 @@ namespace rendering {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
         for (size_t j = 0; j < dimensions.x; j++)
-          _densityGrid[k].push_back(gridF3.at(j, i, k));
+          _densityGrid[k].push_back(gridF3->at(j, i, k));
     }
     _grid = _densityGrid;
     _initSurfaceNodes();
