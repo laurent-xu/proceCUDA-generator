@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "image_block.hh"
+#include "lru.hh"
 
 void help(char* name)
 {
@@ -19,10 +20,11 @@ int main(int argc, char* argv[])
     }
     double volume = std::stof(argv[2]);
     double position[3] = {std::stof(argv[3]), std::stof(argv[4]), std::stof(argv[5])};
-    Octree<ImageBlock>* octMap = new Octree<ImageBlock>();
+    OctMap* octMap = new Octree<ImageBlock>();
     build_positionned_octree(octMap, atoi(argv[1]), volume, position);
     std::cout << "Size: " << octMap->size() << std::endl;
     std::cout << "Depth: " << octMap->depth() << std::endl;
     std::cout << "Leaves: " << octMap->leaves() << std::endl;
+    LRUCache<int, OctMap*> cache(10);
     return 0;
 }
