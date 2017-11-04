@@ -2,13 +2,14 @@
 #include "F3Grid.hh"
 #include "../utils/glm.hh"
 
-static inline GridF3::grid_t make_sphere_example(const F3::vec3_t& grid_origin,
-                                                 const F3::dist_t precision,
-                                                 const F3::vec3_t& center,
-                                                 const F3::dist_t radius)
+static inline GridF3<false>::grid_t
+make_sphere_example(const F3::vec3_t& grid_origin,
+                    const F3::dist_t precision,
+                    const F3::vec3_t& center,
+                    const F3::dist_t radius)
 {
   size_t dimension = 32;
-  auto result = GridF3::get_grid(precision, grid_origin, dimension);
+  auto result = GridF3<false>::get_grid(precision, grid_origin, dimension);
   for (size_t x = 0; x < dimension; ++x)
     for (size_t y = 0; y < dimension; ++y)
       for (size_t z = 0; z < dimension; ++z)
