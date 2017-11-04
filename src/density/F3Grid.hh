@@ -31,6 +31,7 @@ struct GridInfo
   size_t dimension;
 };
 
+template <bool DeviceImplementation>
 class GridF3
 {
 public:
@@ -44,20 +45,38 @@ public:
                     size_t dimension)
     : info_(precision, offset, dimension)
   {
-    points_ = malloc(sizeof(F3) * dimension * dimension * dimension);
+    auto size = dimension * dimension * dimension * sizeof(F3);
+    points_ = malloc(size);
   }
 
   __device__ GridF3(const GridInfo& info)
     : info_(info)
   {
     auto dimension = info.dimension;
-    points_ = malloc(sizeof(F3) * dimension * dimension * dimension);
+    auto size = dimension * dimension * dimension * sizeof(F3) * ;
+    points_ = malloc(size);
   }
 
-  __device__ GridF3(const GridInfo& info)
+  __device__ ~GridF3(const GridInfo& info)
     : info_(info)
   {
     free(points_);
+  }
+
+  HOST_TARGET_GENERATION grid_t<false> copy_to_host()
+  {
+    auto result = GridF3<false>::get_grid(info_);
+    auto dimension = info_.dimension;
+    auto size = dimension * dimension * dimension * sizeof(F3);
+    if (DeviceImplementation)
+      cudaMemcpy((void*)result->points_,
+                 (void*)points_, size,
+                 cudaMemcpyDeviceToHost);
+    else
+    {
+      std::cerr << "Unecessary host to host copy" << std::endl;
+      memcpy(result->points_, points_, size);
+    }
   }
 #endif
 
@@ -69,7 +88,12 @@ public:
 
   HOST_TARGET_GENERATION ~GridF3()
   {
-    HOST_FREE_GENERATION(points_);
+    if (DeviceImplementation)
+      HOST_FREE_GENERATION(points_);
+    else
+    {
+      delete[] points_;
+    }
   }
 
   BOTH_TARGET_GENERATION size_t dim_size() const { return info_.dimension; }
@@ -96,21 +120,31 @@ public:
   }
 
 private:
+  friend class GridF3<true>;
+  friend class GridF3<false>;
+
   HOST_TARGET_GENERATION GridF3(const dist_t& precision,
                                 const vec3_t& offset,
                                 size_t dimension)
     : info_(precision, offset, dimension)
   {
-    HOST_MALLOC_GENERATION(points_,
-                           sizeof(F3) * dimension * dimension * dimension);
+    auto size = dimension * dimension * dimension;
+    if (DeviceImplementation)
+      HOST_MALLOC_GENERATION(points_,
+                             sizeof(F3) * size);
+    else
+      points_ = new F3[size];
   }
 
   HOST_TARGET_GENERATION GridF3(const GridInfo& info)
     : info_(info)
   {
     auto dimension = info.dimension;
-    HOST_MALLOC_GENERATION(points_,
-                           sizeof(F3) * dimension * dimension * dimension);
+    auto size = dimension * dimension * dimension;
+    if (DeviceImplementation)
+      HOST_MALLOC_GENERATION(points_, sizeof(F3) * size);
+    else
+      points_ = new F3[size];
   }
 
   F3* points_;

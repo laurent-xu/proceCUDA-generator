@@ -17,7 +17,7 @@ namespace rendering {
 
     public:
       HermitianGrid(const std::vector<std::vector<node_t>> &grid, point_t dimensions, float nodeSize);
-      HermitianGrid(const GridF3::grid_t& gridF3, point_t dimensions, float nodeSize);
+      HermitianGrid(const GridF3<false>::grid_t& gridF3, point_t dimensions, float nodeSize);
 
     private:
       void _initSurfaceNodes();

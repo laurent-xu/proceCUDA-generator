@@ -5,19 +5,19 @@
 #define DEVICE_TARGET_GENERATION __device__
 #define HOST_TARGET_GENERATION __host__
 #define HOST_MALLOC_GENERATION(ptr, size) do {\
-    cudamalloc((void**)&ptr, size);           \
-  } while(0);
+    cudaMalloc((void**)&ptr, size);           \
+  } while(0)
 #define HOST_FREE_GENERATION(ptr) do {\
-    cudafree((ptr));                  \
-  } while(0);
+    cudaFree((ptr));                  \
+  } while(0)
 #else
 #define BOTH_TARGET_GENERATION /**/
 #define DEVICE_TARGET_GENERATION /**/
 #define HOST_TARGET_GENERATION /**/
 #define HOST_MALLOC_GENERATION(ptr, size) do {\
     ptr = (decltype (ptr))malloc((size));     \
-  } while(0);
+  } while(0)
 #define HOST_FREE_GENERATION(ptr) do {\
     free(ptr);                        \
-  } while(0);
+  } while(0)
 #endif

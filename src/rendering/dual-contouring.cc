@@ -20,7 +20,7 @@ namespace rendering {
   }
 
 
-  HermitianGrid::HermitianGrid(const GridF3::grid_t& gridF3,
+  HermitianGrid::HermitianGrid(const GridF3<false>::grid_t& gridF3,
                                point_t dimensions, float nodeSize)
       : _dimensions(dimensions), _nodeSize(nodeSize)
   {
