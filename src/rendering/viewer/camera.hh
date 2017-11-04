@@ -84,7 +84,7 @@ class Camera
     return position;
   }
 
-  void setPosition(const glm::vec3 &position) {
+  void setPosition(glm::vec3 &position) {
     Camera::position = position;
   }
 
@@ -92,7 +92,7 @@ class Camera
     return front;
   }
 
-  void setFront(const glm::vec3 &front) {
+  void setFront(glm::vec3 &front) {
     Camera::front = front;
   }
 
@@ -100,7 +100,7 @@ class Camera
     return up;
   }
 
-  void setUp(const glm::vec3 &up) {
+  void setUp(glm::vec3 &up) {
     Camera::up = up;
   }
 
@@ -108,7 +108,7 @@ class Camera
     return right;
   }
 
-  void setRight(const glm::vec3 &right) {
+  void setRight(glm::vec3 &right) {
     Camera::right = right;
   }
 
@@ -116,7 +116,7 @@ class Camera
     return worldUp;
   }
 
-  void setWorldUp(const glm::vec3 &worldUp) {
+  void setWorldUp(glm::vec3 &worldUp) {
     Camera::worldUp = worldUp;
   }
 

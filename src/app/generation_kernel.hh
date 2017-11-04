@@ -4,7 +4,7 @@
 
 #ifdef CUDA_GENERATION
 __global__ void kernel_f3(GridF3<true> grid);
-GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
+static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
 {
   size_t dimension = info.dimension;
   size_t thread_per_dim = 8;
@@ -20,7 +20,7 @@ GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
 }
 #else
 F3 kernel_f3(const F3::vec3_t& position);
-GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info)
+static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info)
 {
   size_t dimension = info.dimension;
   auto result = GridF3<false>::get_grid(info);
@@ -36,22 +36,22 @@ GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info)
 #endif
 
 #ifdef CUDA_RENDERING
-GridF3<true>::grid_t make_density_grid(const GridInfo& info)
+static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info)
 {
   auto generated = make_density_grid_aux(info);
 #ifdef CUDA_GENERATION
   auto result = generated;
 #else
-  auto result = generated.copy_to_device();
+  auto result = copy_to_device(generated);
 #endif
   return result;
 }
 #else
-GridF3<false>::grid_t make_density_grid(const GridInfo& info)
+static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info)
 {
   auto generated = make_density_grid_aux(info);
 #ifdef CUDA_GENERATION
-  auto result = generated.copy_to_host();
+  auto result = copy_to_host(generated);
 #else
   auto result = generated;
 #endif

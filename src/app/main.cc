@@ -12,6 +12,8 @@
 #include <rendering/viewer/camera.hh>
 #include <rendering/viewer/shader.hh>
 #include <rendering/vertices-grid.hpp>
+#include <iostream>
+#include <vector>
 
 // Camera controls
 void updateCamera(Camera &camera, float deltaTime, sf::Vector2f &formerPosition);
@@ -91,6 +93,7 @@ int main(int argc, char* argv[])
     grids_info.emplace_back(1., F3::vec3_t(0., 0., 32.), 32);
 
     to_be_printed.clear();
+
     for (const auto& info: grids_info)
     {
       // TODO Anatole

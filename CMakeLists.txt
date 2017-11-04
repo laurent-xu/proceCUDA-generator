@@ -7,6 +7,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 find_package(CUDA REQUIRED)
 
+set(CUDA_NVCC_FLAGS -arch=sm_61 -Xcompiler -DCUDA_CODE
+    -Xcompiler -DCUDA_GENERATION -Xcompiler
+    -D__CORRECT_ISO_CPP11_MATH_H_PROTO
+    --compiler-bindir /usr/bin/g++-5
+    -Xcompiler -fPIC)
 
 MESSAGE("glew not found, installing glew")
 execute_process(COMMAND git submodule update --init -- ThirdParties/glew
@@ -65,7 +70,7 @@ set(SFML_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-sys
 include_directories(${SFML_INCLUDE_DIRS})
 
 # C++14 and extra flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++1y -O0 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++11 -O0 -g")
 
 # Sets library output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)

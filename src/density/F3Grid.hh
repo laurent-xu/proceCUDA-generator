@@ -37,66 +37,7 @@ class GridF3
 public:
   using dist_t = F3::val_t;
   using vec3_t = F3::vec3_t;
-  using grid_t = std::shared_ptr<GridF3>;
-
-#ifdef CUDA_CODE
-  __device__ GridF3(const dist_t& precision,
-                    const vec3_t& offset,
-                    typename std::enable_if<DeviceImplementation, size_t>::type
-                    dimension)
-    : info_(precision, offset, dimension)
-  {
-    auto size = dimension * dimension * dimension * sizeof(F3);
-    points_ = malloc(size);
-  }
-
-  __device__ GridF3(typename std::enable_if<DeviceImplementation,
-                                            const GridInfo&>::type info)
-    : info_(info)
-  {
-    auto dimension = info.dimension;
-    auto size = dimension * dimension * dimension * sizeof(F3) * ;
-    points_ = malloc(size);
-  }
-
-  __device__ ~GridF3()
-    : info_(info)
-  {
-    free(points_);
-  }
-
-  __host__ grid_t<false> copy_to_host()
-  {
-    auto result = GridF3<false>::get_grid(info_);
-    auto dimension = info_.dimension;
-    auto size = dimension * dimension * dimension * sizeof(F3);
-    if (DeviceImplementation)
-      cudaMemcpy((void*)result->points_,
-                 (void*)points_, size,
-                 cudaMemcpyDeviceToHost);
-    else
-    {
-      std::cerr << "Unecessary host to host copy" << std::endl;
-      memcpy(result->points_, points_, size);
-    }
-  }
-
-  __host__ grid_t<true> copy_to_device()
-  {
-    auto result = GridF3<true>::get_grid(info_);
-    auto dimension = info_.dimension;
-    auto size = dimension * dimension * dimension * sizeof(F3);
-    if (DeviceImplementation)
-      cudaMemcpy((void*)result->points_,
-                 (void*)points_, size,
-                 cudaMemcpyHostToDevice);
-    else
-    {
-      std::cerr << "Unecessary device to device copy" << std::endl;
-      memcpy(result->points_, points_, size);
-    }
-  }
-#endif
+  using grid_t = std::shared_ptr<GridF3<DeviceImplementation>>;
 
   template <typename... Args>
   static HOST_TARGET grid_t get_grid(Args&&... args)
@@ -165,3 +106,27 @@ private:
   F3* points_;
   const GridInfo info_;
 };
+
+#ifdef CUDA_CODE
+static inline GridF3<false>::grid_t
+copy_to_host(const GridF3<true>::grid_t& in)
+{
+  auto result = GridF3<false>::get_grid(in->get_grid_info());
+  auto dimension = in->dim_size();
+  auto size = dimension * dimension * dimension * sizeof(F3);
+  cudaMemcpy((void*)result->get_grid(), (void*)in->get_grid(), size,
+             cudaMemcpyHostToDevice);
+  return result;
+}
+
+static inline GridF3<true>::grid_t
+copy_to_device(const GridF3<false>::grid_t& in)
+{
+  auto result = GridF3<true>::get_grid(in->get_grid_info());
+  auto dimension = in->dim_size();
+  auto size = dimension * dimension * dimension * sizeof(F3);
+  cudaMemcpy((void*)result->get_grid(), (void*)in->get_grid(), size,
+             cudaMemcpyHostToDevice);
+  return result;
+}
+#endif
