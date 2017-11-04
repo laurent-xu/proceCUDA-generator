@@ -1,24 +1,22 @@
-#pragma once
-
 #include <iostream>
 #include <algorithm>
 #include <math.h>
-#include "noise.hh"
 
-
-class Perlin: public Noise
+class Perlin
 {
     public:
-        Perlin(float normalization = 100);
-        void set_smoothing(std::function<int(int)> smoothing) {this-> smoothing = smoothing;};
-        void set_normalization(float normalization) {this->normalization = normalization;};
-        float getValue(float x, float y);
-        void shuffle_permutations() {std::random_shuffle(std::begin(this->permutations), std::end(this->permutations));};
+        Perlin();
+        void set_smoothing(std::function<double(double)> smoothing) {this-> smoothing = smoothing;};
+        template<int normalization>
+        double get_value(double x, double y, double z);
+        double linear_interpolate(double a, double b, double t);
+        double dot(const int *v, const double x, const double y, const double z);
+        int *get_grad(int x, int y, int z);
 
     private:
-        float normalization;
-        std::function<int(int)> smoothing;
-        unsigned int permutations[256];
-        static const float unit;
-        static const float grad[][2];
+        std::function<double(double)> smoothing;
+        static const unsigned int permutations[512];
+        static int grad[16][3];
 };
+
+#include "perlin.cc"

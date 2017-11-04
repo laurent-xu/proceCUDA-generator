@@ -3,5 +3,5 @@
 class Noise
 {
     public:
-        virtual float getValue(float x, float y) = 0;
+        virtual double get_value(double x, double y, double z) = 0;
 };
