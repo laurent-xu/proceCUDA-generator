@@ -1,3 +1,4 @@
+#include <iostream>
 #include <list>
 #include <unordered_map>
 #include <assert.h>
@@ -23,7 +24,9 @@ class LRUCache
             }
         };
     public:
-        LRUCache(int cache_size_) : cache_size(cache_size_) {};
+        LRUCache(size_t cache_size_) : cache_size(cache_size_) {};
+		size_t size() {return item_map.size();};
+		size_t max_size() {return cache_size;};
         bool exist(const KEY_T &key) {return item_map.count(key) > 0;};
         void put(const KEY_T &key, const VAL_T &val);
         VAL_T get(const KEY_T &key);
