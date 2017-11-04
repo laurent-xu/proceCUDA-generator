@@ -200,9 +200,9 @@ namespace rendering {
 
   bool HermitianGrid::isSurface(int x, int y, int z) {
     auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
-    return  (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
-            || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
-            || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
+    return (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
+           || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
+           || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
 
 }
