@@ -30,8 +30,9 @@ void testCube() {
     std::cout << "Glew initialized successfully" << std::endl;
 
   auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(2));
+  auto dimension = sphere->dim_size();
   rendering::HermitianGrid
-      hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
+      hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
 
   auto vertices_vect = hermitianGrid.computeVertices(0.5f);
   size_t vertices_size = vertices_vect.size();
@@ -152,8 +153,9 @@ void testSphere() {
     std::cout << "Glew initialized successfully" << std::endl;
 
   auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(2));
+  auto dimension = sphere->dim_size();
   rendering::HermitianGrid
-      hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
+      hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
 
   auto vertices_vect = hermitianGrid.computeVertices(1.0f);
   size_t vertices_size = vertices_vect.size();

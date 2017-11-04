@@ -20,14 +20,15 @@ namespace rendering {
   }
 
 
-  HermitianGrid::HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize)
+  HermitianGrid::HermitianGrid(const GridF3::grid_t& gridF3,
+                               point_t dimensions, float nodeSize)
       : _dimensions(dimensions), _nodeSize(nodeSize)
   {
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
         for (size_t j = 0; j < dimensions.x; j++)
-          _densityGrid[k].push_back(gridF3.at(j, i, k));
+          _densityGrid[k].push_back(gridF3->at(j, i, k));
     }
     _grid = _densityGrid;
     _initSurfaceNodes();

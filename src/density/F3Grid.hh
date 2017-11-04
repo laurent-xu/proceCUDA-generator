@@ -64,7 +64,7 @@ public:
   template <typename... Args>
   static HOST_TARGET_GENERATION grid_t get_grid(Args&&... args)
   {
-    return std::make_shared<GridF3>(new GridF3(std::forward(args)...));
+    return std::shared_ptr<GridF3>(new GridF3(std::forward<Args>(args)...));
   }
 
   HOST_TARGET_GENERATION ~GridF3()

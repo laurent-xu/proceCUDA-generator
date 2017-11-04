@@ -4,7 +4,7 @@ add_subdirectory(density)
 add_subdirectory(rendering)
 
 add_library(rendering SHARED ${RENDERING_SOURCES})
-add_library(density SHARED ${DENSITY_SOURCES})
+#add_library(density SHARED ${DENSITY_SOURCES})
 add_library(compilation SHARED ${COMPILATION_SOURCES})
 add_library(emptygeneration SHARED ${EMPTY_GENERATION_SOURCES})
 
