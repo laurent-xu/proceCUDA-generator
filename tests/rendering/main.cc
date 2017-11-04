@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <GL/glew.h>
-#include <rendering/dual-contouring.hh>
+#include <rendering/hermitian-grid.hh>
 #include <rendering/utils/nm-matrix.hpp>
 #include <rendering/qr-decomposition.hpp>
 #include <density/Sphere.hh>
@@ -11,6 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <rendering/viewer/camera.hh>
 #include <rendering/viewer/shader.hh>
+#include <rendering/vertices-grid.hpp>
 
 using data_t = rendering::data_t;
 using point_t = rendering::point_t;
@@ -33,9 +34,9 @@ void testCube() {
   auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(10));
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
-  auto verticesGrid = hermitianGrid.generateVerticesGrid(0.1);
+  rendering::VerticesGrid verticesGrid(hermitianGrid, 0.05);
 
-  auto &data_vect = verticesGrid.getNormals();
+  auto &data_vect = verticesGrid.getVertices();
   size_t data_size = data_vect.size();
   GLfloat *data = (GLfloat *) &data_vect[0];
   std::cout << data_size << std::endl;
@@ -69,11 +70,11 @@ void testCube() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof (GLuint), indices, GL_STATIC_DRAW);
     // vertices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) (0));
     glEnableVertexAttribArray(0);
     // normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+    // glEnableVertexAttribArray(1);
   } glBindVertexArray(0);
 
   glPointSize(10);

@@ -13,30 +13,6 @@
 
 namespace rendering {
 
-  class VerticesGrid {
-    public:
-      VerticesGrid(std::vector<GLfloat> vertices, std::vector<GLuint> indices)
-          : _vertices(vertices), _indices(indices) { computeNormals(); computeVBO(); }
-    private:
-      void computeNormals();
-        void _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
-      void computeVBO();
-
-    private:
-      std::vector<GLfloat> _vertices;
-      std::vector<GLuint> _indices;
-      std::vector<GLfloat> _normals;
-      std::vector<GLfloat> _vbo;
-
-    public:
-      const std::vector<GLfloat> &getVertices() const { return _vertices; }
-      const std::vector<GLuint> &getIndices() const { return _indices; }
-      const std::vector<GLfloat> &getNormals() const { return _normals; }
-      const std::vector<GLfloat> &getVBO() const { return _vbo; }
-
-    public:
-  };
-
   class HermitianGrid {
 
     public:
@@ -56,13 +32,11 @@ namespace rendering {
                                          const std::vector<data_t> &N, const node_t &node, int axis);
 
     public:
-      VerticesGrid generateVerticesGrid(float scale);
-      bool pointContainsFeature(int x, int y, int z);
+      bool pointContainsFeature(int x, int y, int z) const;
       bool isSurface(int x, int y, int z);
-      const node_t &getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
-      point_t getDimensions() { return _dimensions; }
-      std::vector<GLfloat> computeVertices(float scale);
-      std::vector<GLuint> computeIndices();
+      const node_t &getValueAt(int x, int y, int z) const { return _grid[z][y * _dimensions.x + x]; }
+      point_t getDimensions() const { return _dimensions; }
+      std::vector<GLfloat> computeVBOIndices();
 
     public:
       static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);

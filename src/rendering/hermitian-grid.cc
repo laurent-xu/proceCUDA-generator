@@ -6,23 +6,22 @@
 #include <iomanip>
 #include <rendering/utils/nm-matrix.hpp>
 #include <tgmath.h>
-#include "dual-contouring.hh"
+#include "hermitian-grid.hh"
 #include "qr-decomposition.hpp"
 
 namespace rendering {
 
-  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>>&, point_t dimensions, float nodeSize)
-      : _dimensions(dimensions), _nodeSize(nodeSize)
-  {
+  HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &, point_t dimensions, float nodeSize)
+      : _dimensions(dimensions), _nodeSize(nodeSize) {
     _initSurfaceNodes();
+    computeVBOIndices();
     _computeIntersections();
-    _computeContouringVertices();
+    // _computeContouringVertices(); // TODO: dual contouring
   }
 
 
   HermitianGrid::HermitianGrid(const GridF3 &gridF3, point_t dimensions, float nodeSize)
-      : _dimensions(dimensions), _nodeSize(nodeSize)
-  {
+      : _dimensions(dimensions), _nodeSize(nodeSize) {
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
@@ -31,8 +30,9 @@ namespace rendering {
     }
     _grid = _densityGrid;
     _initSurfaceNodes();
+    computeVBOIndices();
     _computeIntersections();
-    // _computeContouringVertices();
+    // _computeContouringVertices(); // TODO: dual contouring
   }
 
   void HermitianGrid::_initSurfaceNodes() {
@@ -79,7 +79,7 @@ namespace rendering {
 
   point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
-    data_t n[] = { node.gradient.x, node.gradient.y, node.gradient.z };
+    data_t n[] = {node.gradient.x, node.gradient.y, node.gradient.z};
     std::vector<data_t> N;
     N.assign(n, n + 3);
     std::vector<data_t> A;
@@ -105,8 +105,7 @@ namespace rendering {
 
   void HermitianGrid::_registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
                                                       const std::vector<data_t> &N, const node_t &node,
-                                                      bool check_x, bool check_y, bool check_z)
-  {
+                                                      bool check_x, bool check_y, bool check_z) {
     if (check_x && node.intersections.x != 0)
       _registerIntersectionsForAxis(A, b, N, node, 0);
     if (check_y && node.intersections.y != 0)
@@ -118,8 +117,8 @@ namespace rendering {
   void HermitianGrid::_registerIntersectionsForAxis(std::vector<data_t> &A, std::vector<data_t> &b,
                                                     const std::vector<data_t> &N, const node_t &node, int axis) {
     A.insert(A.end(), N.begin(), N.end());
-    data_t p[3] = { node.min.x, node.min.y, node.min.z };
-    data_t intersections_compo[3] = { node.intersections.x, node.intersections.y, node.intersections.z};
+    data_t p[3] = {node.min.x, node.min.y, node.min.z};
+    data_t intersections_compo[3] = {node.intersections.x, node.intersections.y, node.intersections.z};
     p[axis] += intersections_compo[axis];
     std::vector<data_t> pi;
     pi.assign(p, p + 3);
@@ -129,7 +128,7 @@ namespace rendering {
   }
 
 
-  bool HermitianGrid::pointContainsFeature(int x, int y, int z) {
+  bool HermitianGrid::pointContainsFeature(int x, int y, int z) const {
     int nb_air = 0;
     int nb_solid = 0;
     for (int i = 0; i <= 1 && x + i < _dimensions.x; i += 1)
@@ -184,17 +183,19 @@ namespace rendering {
     }
   }
 
-  std::vector<GLfloat> HermitianGrid::computeVertices(float scale) {
+  std::vector<GLfloat> HermitianGrid::computeVBOIndices() {
     std::vector<GLfloat> result;
     int vbo_idx = 0;
     for (int z = 0; z < _dimensions.z; z++) {
       for (int y = 0; y < _dimensions.y; y++) {
         for (int x = 0; x < _dimensions.x; x++) {
           if (pointContainsFeature(x, y, z)) {
-            auto &node = _grid[z][y * _dimensions.x + x];
+            //auto &node = _grid[z][y * _dimensions.x + x];
+            /*
             result.push_back((float &&) ((node.min.x - (float) _dimensions.x / 2.0f) * scale));
             result.push_back((float &&) ((node.min.y - (float) _dimensions.y / 2.0f) * scale));
             result.push_back((float &&) ((node.min.z - (float) _dimensions.z / 2.0f) * scale));
+            */
             _grid[z][y * _dimensions.x + x].vbo_idx = vbo_idx++;
           }
         }
@@ -205,104 +206,10 @@ namespace rendering {
 
   bool HermitianGrid::isSurface(int x, int y, int z) {
     auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
-    return  (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
-            || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
-            || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
+    return (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
+           || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
+           || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
 
-  std::vector<GLuint> HermitianGrid::computeIndices() {
-    std::vector<GLuint> indices;
-    for (int z = 0; z < _dimensions.z; z++) {
-      for (int y = 0; y < _dimensions.y; y++) {
-        for (int x = 0; x < _dimensions.x; x++) {
-          auto &node = _grid[z][y * _dimensions.x + x];
-          if (node.vbo_idx != -1) {
-            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).vbo_idx != -1
-              && y + 1 < _dimensions.y && getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y + 1, z).vbo_idx);
-            }
-            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).vbo_idx != -1
-                && x + 1 < _dimensions.x && getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y + 1, z).vbo_idx);
-              indices.push_back(getValueAt(x, y + 1, z).vbo_idx);
-            }
-            if (x + 1 < _dimensions.x && getValueAt(x + 1, y, z).vbo_idx != -1
-                && z + 1 < _dimensions.z && getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y, z + 1).vbo_idx);
-            }
-            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1
-                && x + 1 < _dimensions.x && getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x + 1, y, z + 1).vbo_idx);
-              indices.push_back(getValueAt(x, y, z + 1).vbo_idx);
-            }
-            if (y + 1 < _dimensions.y && getValueAt(x, y + 1, z).vbo_idx != -1
-                && z + 1 < _dimensions.z && getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x, y + 1, z).vbo_idx);
-              indices.push_back(getValueAt(x, y + 1, z + 1).vbo_idx);
-            }
-            if (z + 1 < _dimensions.z && getValueAt(x, y, z + 1).vbo_idx != -1
-                && y + 1 < _dimensions.y && getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
-              indices.push_back(getValueAt(x, y, z).vbo_idx);
-              indices.push_back(getValueAt(x, y + 1, z + 1).vbo_idx);
-              indices.push_back(getValueAt(x, y, z + 1).vbo_idx);
-            }
-          }
-        }
-      }
-    }
-    return indices;
-  }
-
-  VerticesGrid HermitianGrid::generateVerticesGrid(float scale) {
-    auto vbo = computeVertices(scale);
-    auto ebo = computeIndices();
-    return VerticesGrid(vbo, ebo);
-  }
-
-  void VerticesGrid::computeNormals() {
-    for (size_t i = 0; i < _vertices.size(); i += 9)
-      _computeNormal(point_t(_vertices[i], _vertices[i + 1], _vertices[i + 2]),
-                     point_t(_vertices[i + 3], _vertices[i + 4], _vertices[i + 5]),
-                             point_t(_vertices[i + 6], _vertices[i + 7], _vertices[i + 8]));
-  }
-
-  void
-  VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
-    auto U = p2 - p1;
-    auto V = p3 - p1;
-    data_t x = U.y * V.z - U.z * V.y;
-    data_t y = U.z * V.x - U.x * V.z;
-    data_t z = U.x * V.y - U.y * V.x;
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
-
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
-
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
-  }
-
-  void VerticesGrid::computeVBO() {
-    std::cout << "normals " << _normals.size() << std::endl;
-    std::cout << "vertices " << _vertices.size() << std::endl;
-    for (size_t i = 0; i < _vertices.size(); i += 3) {
-      _vbo.push_back(_vertices[i]);
-      _vbo.push_back(_vertices[i + 1]);
-      _vbo.push_back(_vertices[i + 2]);
-      _vbo.push_back(_normals[i]);
-      _vbo.push_back(_normals[i + 1]);
-      _vbo.push_back(_normals[i + 2]);
-    }
-  }
 }
+
