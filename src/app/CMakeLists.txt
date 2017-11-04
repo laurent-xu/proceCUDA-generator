@@ -1,0 +1,19 @@
+set(APP_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/generation_kernel.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cc
+    PARENT_SCOPE)
+
+set(EMPTY_GENERATION_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/empty.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/generation_kernel.hh
+    PARENT_SCOPE)
+
+set(CUDA_APP_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/generation_kernel.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cu
+    PARENT_SCOPE)
+
+set(CUDA_EMPTY_GENERATION_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/empty.cu
+    ${CMAKE_CURRENT_SOURCE_DIR}/generation_kernel.hh
+    PARENT_SCOPE)
