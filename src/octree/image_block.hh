@@ -10,15 +10,17 @@ class ImageBlock
         ImageBlock();
         virtual ~ImageBlock();
     public:
-        float distance(float position[3]);
+        double distance(double position[3]);
+        bool contains(double position[3]);
         int depth;
-        float position[3];
-        int size[3];
+        double position[3];
+        double size;
         bool generated;
-        static const float vector[8][3];
+        static const double vector[8][3];
 };
 
-void build_image_octree(Octree<ImageBlock>* octMap, const int tree_depth, int vol_dim[3]);
+void build_image_octree(Octree<ImageBlock>* octMap, const int tree_depth, double volume);
+void build_positionned_octree(Octree<ImageBlock>* octMap, const int tree_depth, double volume, double position[3]);
 void add_image_blocks(Octree<ImageBlock>* octMap, const int tree_depth);
 Octree<ImageBlock>* add_image_block(Octree<ImageBlock>* octMap, int idx);
-void get_near_blocks(std::vector<ImageBlock*>& res, Octree<ImageBlock>* octMap, float position[3], float threshold);
+void get_near_blocks(std::vector<ImageBlock*>& res, Octree<ImageBlock>* octMap, double position[3], double threshold);
