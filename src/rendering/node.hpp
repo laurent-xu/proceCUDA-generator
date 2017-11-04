@@ -18,6 +18,14 @@ namespace rendering {
     data_t y = 0;
     data_t z = 0;
 
+    point_t scale(float scale) const {
+      auto p = point_t(x, y, z);
+      p.x *= scale;
+      p.y *= scale;
+      p.z *= scale;
+      return p;
+    }
+
     point_t &operator+=(const point_t &other) {
       this->x += other.x;
       this->y += other.y;

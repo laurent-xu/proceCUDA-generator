@@ -36,7 +36,7 @@ namespace rendering {
       bool isSurface(int x, int y, int z);
       const node_t &getValueAt(int x, int y, int z) const { return _grid[z][y * _dimensions.x + x]; }
       point_t getDimensions() const { return _dimensions; }
-      std::vector<GLfloat> computeVBOIndices();
+      void computeVBOIndices();
 
     public:
       static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);

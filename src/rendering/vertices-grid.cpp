@@ -41,22 +41,19 @@ namespace rendering {
   void VerticesGrid::computeVBO(const HermitianGrid &hermitianGrid, float scale) {
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++)
       for (int y = 0; y < hermitianGrid.getDimensions().y; y++)
-        for (int x = 0; x < hermitianGrid.getDimensions().x; x++)
-          if (hermitianGrid.pointContainsFeature(x, y, z)) {
-            auto &node = hermitianGrid.getValueAt(x, y, z);
-            _addVertex(point_t(
-                (float) ((node.min.x - (float) (hermitianGrid.getDimensions().x) / 2.0f) * scale),
-                (float) ((node.min.y - (float) (hermitianGrid.getDimensions().y) / 2.0f) * scale),
-                (float) ((node.min.z - (float) (hermitianGrid.getDimensions().z) / 2.0f) * scale)
-            ), _vertices);
+        for (int x = 0; x < hermitianGrid.getDimensions().x; x++) {
+          auto &node = hermitianGrid.getValueAt(x, y, z);
+          if (node.vbo_idx != -1) {
+            _addVertex(node.vertex_pos.scale(scale), _vertices);
           }
+        }
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++) {
       for (int y = 0; y < hermitianGrid.getDimensions().y; y++) {
         for (int x = 0; x < hermitianGrid.getDimensions().x; x++) {
           auto &node = hermitianGrid.getValueAt(x, y, z);
           if (node.vbo_idx != -1) {
             if (x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.getValueAt(x + 1, y, z).vbo_idx != -1
-                && y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
+                && y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x, y + 1, z).vbo_idx != -1) {
               _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
               _indices.push_back(hermitianGrid.getValueAt(x + 1, y, z).vbo_idx);
               _indices.push_back(hermitianGrid.getValueAt(x + 1, y + 1, z).vbo_idx);

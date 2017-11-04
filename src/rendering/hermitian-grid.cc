@@ -16,7 +16,7 @@ namespace rendering {
     _initSurfaceNodes();
     computeVBOIndices();
     _computeIntersections();
-    // _computeContouringVertices(); // TODO: dual contouring
+    _computeContouringVertices(); // TODO: dual contouring
   }
 
 
@@ -32,7 +32,7 @@ namespace rendering {
     _initSurfaceNodes();
     computeVBOIndices();
     _computeIntersections();
-    // _computeContouringVertices(); // TODO: dual contouring
+    _computeContouringVertices(); // TODO: dual contouring
   }
 
   void HermitianGrid::_initSurfaceNodes() {
@@ -72,8 +72,15 @@ namespace rendering {
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
+          node.vertex_pos = point_t(
+              (float) (node.min.x - (float) (_dimensions.x) / 2.0f),
+              (float) (node.min.y - (float) (_dimensions.y) / 2.0f),
+              (float) (node.min.z - (float) (_dimensions.z) / 2.0f)
+          );
+          /*
           if (node.value == 0)
-            _computeVerticeForNode(x, y, z);
+            _computeVerticeForNode(x, y, z); // TODO: dual contouring
+          */
         }
   }
 
@@ -183,25 +190,13 @@ namespace rendering {
     }
   }
 
-  std::vector<GLfloat> HermitianGrid::computeVBOIndices() {
-    std::vector<GLfloat> result;
+  void HermitianGrid::computeVBOIndices() {
     int vbo_idx = 0;
-    for (int z = 0; z < _dimensions.z; z++) {
-      for (int y = 0; y < _dimensions.y; y++) {
-        for (int x = 0; x < _dimensions.x; x++) {
-          if (pointContainsFeature(x, y, z)) {
-            //auto &node = _grid[z][y * _dimensions.x + x];
-            /*
-            result.push_back((float &&) ((node.min.x - (float) _dimensions.x / 2.0f) * scale));
-            result.push_back((float &&) ((node.min.y - (float) _dimensions.y / 2.0f) * scale));
-            result.push_back((float &&) ((node.min.z - (float) _dimensions.z / 2.0f) * scale));
-            */
+    for (int z = 0; z < _dimensions.z; z++)
+      for (int y = 0; y < _dimensions.y; y++)
+        for (int x = 0; x < _dimensions.x; x++)
+          if (pointContainsFeature(x, y, z))
             _grid[z][y * _dimensions.x + x].vbo_idx = vbo_idx++;
-          }
-        }
-      }
-    }
-    return result;
   }
 
   bool HermitianGrid::isSurface(int x, int y, int z) {
