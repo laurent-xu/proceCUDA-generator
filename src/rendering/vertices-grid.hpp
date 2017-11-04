@@ -13,8 +13,7 @@ namespace rendering {
       VerticesGrid(const HermitianGrid &hermitianGrid, float scale);
 
     private:
-      void computeNormals();
-      void _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
+      point_t _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
       void computeVBO(const HermitianGrid &hermitianGrid, float scale);
       void _addVertex(point_t vertex, std::vector<GLfloat> &buffer_vect);
 

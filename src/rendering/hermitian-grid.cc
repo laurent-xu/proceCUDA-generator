@@ -191,12 +191,9 @@ namespace rendering {
   }
 
   void HermitianGrid::computeVBOIndices() {
-    int vbo_idx = 0;
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
-        for (int x = 0; x < _dimensions.x; x++)
-          if (pointContainsFeature(x, y, z))
-            _grid[z][y * _dimensions.x + x].vbo_idx = vbo_idx++;
+        for (int x = 0; x < _dimensions.x; x++) {}
   }
 
   bool HermitianGrid::isSurface(int x, int y, int z) {

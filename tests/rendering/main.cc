@@ -30,15 +30,21 @@ void testCube() {
   if (glewInit() == GLEW_OK)
     std::cout << "Glew initialized successfully" << std::endl;
 
-  //auto sphere = make_single_point(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16));
   auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(10));
+  // auto sphere = debug_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16));
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(sphere.dim_size(), sphere.dim_size(), sphere.dim_size()), 1);
   rendering::VerticesGrid verticesGrid(hermitianGrid, 0.05);
 
-  auto &data_vect = verticesGrid.getVertices();
+  auto &data_vect = verticesGrid.getVBO();
   size_t data_size = data_vect.size();
   GLfloat *data = (GLfloat *) &data_vect[0];
+  for (size_t i = 0; i < data_size; i++) {
+    if (i % 6 == 0)
+      std::cout << std::endl;
+    std::cout << data[i] << " ";
+  }
+  std::cout << std::endl;
   std::cout << data_size << std::endl;
 
   auto &indices_vect = verticesGrid.getIndices();
@@ -48,10 +54,10 @@ void testCube() {
 
   glm::mat4 model;
   glm::mat4 view;
-  glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+  glm::vec3 lightPos(-4.0f, -13.0f, 9.0f);
   Camera camera;
   // Note that we're translating the scene in the reverse direction of where we want to move
-  view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
   glm::mat4 projection;
   projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
@@ -70,11 +76,11 @@ void testCube() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof (GLuint), indices, GL_STATIC_DRAW);
     // vertices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) (0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (0));
     glEnableVertexAttribArray(0);
     // normals
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    // glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
   } glBindVertexArray(0);
 
   glPointSize(10);
@@ -116,6 +122,7 @@ void testCube() {
 
     glBindVertexArray(VAO); {
       glDrawElements(GL_TRIANGLES, (GLsizei) indices_size, GL_UNSIGNED_INT, 0);
+      //glDrawElements(GL_TRIANGLES, (GLsizei) 18, GL_UNSIGNED_INT, 0);
     } glBindVertexArray(0);
 
     window->display();

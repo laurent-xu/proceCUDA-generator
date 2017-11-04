@@ -11,90 +11,108 @@ namespace rendering {
     computeVBO(hermitianGrid, scale);
   }
 
-  void VerticesGrid::computeNormals() {
-    for (size_t i = 0; i < _vertices.size(); i += 9)
-      _computeNormal(point_t(_vertices[i], _vertices[i + 1], _vertices[i + 2]),
-                     point_t(_vertices[i + 3], _vertices[i + 4], _vertices[i + 5]),
-                     point_t(_vertices[i + 6], _vertices[i + 7], _vertices[i + 8]));
-  }
-
-  void
-  VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
+  point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
     auto U = p2 - p1;
     auto V = p3 - p1;
-    data_t x = U.y * V.z - U.z * V.y;
-    data_t y = U.z * V.x - U.x * V.z;
-    data_t z = U.x * V.y - U.y * V.x;
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
-
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
-
-    _normals.push_back(x);
-    _normals.push_back(y);
-    _normals.push_back(z);
+    float x = (float) (U.y * V.z - U.z * V.y);
+    float y = (float) (U.z * V.x - U.x * V.z);
+    float z = (float) (U.x * V.y - U.y * V.x);
+    return point_t(x, y, z);
   }
 
   void VerticesGrid::computeVBO(const HermitianGrid &hermitianGrid, float scale) {
+    /*
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++)
       for (int y = 0; y < hermitianGrid.getDimensions().y; y++)
         for (int x = 0; x < hermitianGrid.getDimensions().x; x++) {
           auto &node = hermitianGrid.getValueAt(x, y, z);
-          if (node.vbo_idx != -1) {
+          if (hermitianGrid.pointContainsFeature(x, y, z)) {
             _addVertex(node.vertex_pos.scale(scale), _vertices);
           }
         }
+        */
+    unsigned int vbo_idx = 0;
+    // Indices of previous vertices to avoid duplication.
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++) {
       for (int y = 0; y < hermitianGrid.getDimensions().y; y++) {
         for (int x = 0; x < hermitianGrid.getDimensions().x; x++) {
           auto &node = hermitianGrid.getValueAt(x, y, z);
-          if (node.vbo_idx != -1) {
-            if (x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.getValueAt(x + 1, y, z).vbo_idx != -1
-                && y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x, y + 1, z).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y + 1, z).vbo_idx);
+          if (hermitianGrid.pointContainsFeature(x, y, z)) {
+            if (x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.pointContainsFeature(x + 1, y, z)
+                && y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.pointContainsFeature(x, y + 1, z)
+                && hermitianGrid.pointContainsFeature(x + 1, y + 1, z)) {
+              auto normal = _computeNormal(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x + 1, y, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x + 1, y + 1, z).vertex_pos.scale(scale));
+              normal = normal.scale(1 / normal.norm());
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x + 1, y, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x + 1, y + 1, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x, y + 1, z).vertex_pos.scale(scale), _vertices);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 1);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx + 3);
+              vbo_idx += 4;
             }
-            if (y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x, y + 1, z).vbo_idx != -1
-                && x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.getValueAt(x + 1, y + 1, z).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y + 1, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y + 1, z).vbo_idx);
+            if (x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.pointContainsFeature(x + 1, y, z)
+                && z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.pointContainsFeature(x, y, z + 1)
+                && hermitianGrid.pointContainsFeature(x + 1, y, z + 1)) {
+              auto normal = _computeNormal(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x + 1, y, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x + 1, y, z + 1).vertex_pos.scale(scale));
+              normal = normal.scale(1 / normal.norm());
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x + 1, y, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x + 1, y, z + 1).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x, y, z + 1).vertex_pos.scale(scale), _vertices);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 1);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx + 3);
+              vbo_idx += 4;
             }
-            if (x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.getValueAt(x + 1, y, z).vbo_idx != -1
-                && z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y, z + 1).vbo_idx);
-            }
-            if (z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.getValueAt(x, y, z + 1).vbo_idx != -1
-                && x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.getValueAt(x + 1, y, z + 1).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x + 1, y, z + 1).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z + 1).vbo_idx);
-            }
-            if (y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x, y + 1, z).vbo_idx != -1
-                && z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y + 1, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y + 1, z + 1).vbo_idx);
-            }
-            if (z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.getValueAt(x, y, z + 1).vbo_idx != -1
-                && y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.getValueAt(x, y + 1, z + 1).vbo_idx != -1) {
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y + 1, z + 1).vbo_idx);
-              _indices.push_back(hermitianGrid.getValueAt(x, y, z + 1).vbo_idx);
+            if (y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.pointContainsFeature(x, y + 1, z)
+                && z + 1 < hermitianGrid.getDimensions().z && hermitianGrid.pointContainsFeature(x, y, z + 1)
+                && hermitianGrid.pointContainsFeature(x, y + 1, z + 1)) {
+              auto normal = _computeNormal(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x, y + 1, z).vertex_pos.scale(scale),
+                                           hermitianGrid.getValueAt(x, y + 1, z + 1).vertex_pos.scale(scale));
+              normal = normal.scale(1 / normal.norm());
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(normal, _normals);
+              _addVertex(hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x, y + 1, z).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x, y + 1, z + 1).vertex_pos.scale(scale), _vertices);
+              _addVertex(hermitianGrid.getValueAt(x, y, z + 1).vertex_pos.scale(scale), _vertices);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 1);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx);
+              _indices.push_back(vbo_idx + 2);
+              _indices.push_back(vbo_idx + 3);
+              vbo_idx += 4;
             }
           }
         }
       }
     }
-    computeNormals();
-    // std::cout << "normals " << _normals.size() << std::endl;
-    // std::cout << "vertices " << _vertices.size() << std::endl;
+    std::cout << "normals " << _normals.size() << std::endl;
+    std::cout << "vertices " << _vertices.size() << std::endl;
     for (size_t i = 0; i < _vertices.size(); i += 3) {
       _vbo.push_back(_vertices[i]);
       _vbo.push_back(_vertices[i + 1]);
