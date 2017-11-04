@@ -30,7 +30,7 @@ void testCube() {
   if (glewInit() == GLEW_OK)
     std::cout << "Glew initialized successfully" << std::endl;
 
-  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(2));
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(10));
   auto dimension = sphere->dim_size();
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
@@ -76,11 +76,11 @@ void testCube() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size * sizeof (GLuint), indices, GL_STATIC_DRAW);
     // vertices
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) (0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (0));
     glEnableVertexAttribArray(0);
     // normals
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
-    // glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
   } glBindVertexArray(0);
 
   glPointSize(10);
