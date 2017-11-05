@@ -1,0 +1,7 @@
+file(GLOB files "*.proc")
+foreach(file ${files})
+  get_filename_component(current_file ${file} NAME_WE)
+  set(current_target GEN${current_file})
+  add_custom_target(${current_target} ALL DEPENDS make_dot)
+  add_custom_command(TARGET ${mytmp} COMMAND echo ${mytmp} >> test DEPENDS all_modules.proc)
+endforeach()

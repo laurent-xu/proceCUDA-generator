@@ -1,8 +1,7 @@
-set(TEST_COMPILATION_SOURCES ${TEST_COMPILATION_SOURCES}
-        main.cc)
+set(TEST_COMPILATION_SOURCES main.cc)
 
-add_executable(test_compilation ${TEST_COMPILATION_SOURCES})
+add_executable(make_dot ${TEST_COMPILATION_SOURCES})
 
-target_link_libraries(test_compilation; compilation)
+target_link_libraries(make_dot; compilation)
 
-set(${TESTS_LIST} test_compilation PARENT_SCOPE)
+set(${TESTS_LIST} make_dot PARENT_SCOPE)

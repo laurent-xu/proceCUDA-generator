@@ -85,3 +85,4 @@ include_directories(
 # Adds source directory
 add_subdirectory(src)
 add_subdirectory(tests)
+add_subdirectory(examples)
