@@ -7,26 +7,36 @@
 
 int main(int argc, char* argv[])
 {
-  if (argc == 3)
+  if (argc == 4)
   {
     auto fs = std::ifstream(argv[1]);
     auto str = std::string(std::istreambuf_iterator<char>(fs),
                            std::istreambuf_iterator<char>());
     auto root = Node::parse(str);
 
-    auto v = DotVisitor();
+    /*
+    auto v = CompileVisitor();
     root->accept(v);
 
-    auto out_fs = std::ofstream(argv[2]);
-    if (out_fs)
+    auto cu_fs = std::ofstream(argv[2]);
+    if (cu_fs)
     {
-      out_fs << v.get_str() << std::endl;
-      out_fs.close();
+      cu_fs << v.get_cu() << std::endl;
+      cu_fs.close();
     }
+
+    auto cc_fs = std::ofstream(argv[3]);
+    if (cc_fs)
+    {
+      cc_fs << v.get_cc() << std::endl;
+      cc_fs.close();
+    }*/
+    (void)root;
   }
   else
   {
-    std::cerr << "help: "<< argv[0] << " input.txt output.dot" << std::endl;
+    std::cerr << "usage: "<< argv[0] << " input.proc output.cu output.cc" 
+              << std::endl;
     return 1;
   }
   return 0;
