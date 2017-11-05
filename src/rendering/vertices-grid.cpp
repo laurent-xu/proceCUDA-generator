@@ -9,6 +9,7 @@ namespace rendering {
 
   VerticesGrid::VerticesGrid(const HermitianGrid &hermitianGrid, float scale) {
     computeVBO(hermitianGrid, scale);
+    initVAO();
   }
 
   point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
@@ -114,12 +115,12 @@ namespace rendering {
     std::cout << "normals " << _normals.size() << std::endl;
     std::cout << "vertices " << _vertices.size() << std::endl;
     for (size_t i = 0; i < _vertices.size(); i += 3) {
-      _vbo.push_back(_vertices[i]);
-      _vbo.push_back(_vertices[i + 1]);
-      _vbo.push_back(_vertices[i + 2]);
-      _vbo.push_back(_normals[i]);
-      _vbo.push_back(_normals[i + 1]);
-      _vbo.push_back(_normals[i + 2]);
+      _data.push_back(_vertices[i]);
+      _data.push_back(_vertices[i + 1]);
+      _data.push_back(_vertices[i + 2]);
+      _data.push_back(_normals[i]);
+      _data.push_back(_normals[i + 1]);
+      _data.push_back(_normals[i + 2]);
     }
   }
 
@@ -127,6 +128,36 @@ namespace rendering {
     buffer_vect.push_back(vertex.x);
     buffer_vect.push_back(vertex.y);
     buffer_vect.push_back(vertex.z);
+  }
+
+  void VerticesGrid::initVAO() {
+    auto &data_vect = _data;
+    GLfloat *data = &data_vect[0];
+
+    auto &indices_vect = _indices;
+    GLuint *indices = &indices_vect[0];
+
+    glGenBuffers(1, &_EBO);
+    glGenVertexArrays(1, &_VAO);
+    glGenBuffers(1, &_VBO);
+    glBindVertexArray(_VAO); {
+      glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+      glBufferData(GL_ARRAY_BUFFER, _data.size() * sizeof (GLfloat), data, GL_STATIC_DRAW);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, _indices.size() * sizeof (GLuint), indices, GL_STATIC_DRAW);
+      // vertices
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (0));
+      glEnableVertexAttribArray(0);
+      // normals
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *) (3 * sizeof(GLfloat)));
+      glEnableVertexAttribArray(1);
+    } glBindVertexArray(0);
+  }
+
+  void VerticesGrid::draw() {
+    glBindVertexArray(_VAO); {
+      glDrawElements(GL_TRIANGLES, (GLsizei) _indices.size(), GL_UNSIGNED_INT, 0);
+    } glBindVertexArray(0);
   }
 }
 

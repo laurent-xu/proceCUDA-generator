@@ -10,7 +10,7 @@ __global__ void kernel_f3(GridF3<true> grid);
 
   if (x < dimension && y < dimension && z < dimension)
   {
-    auto center = F3::vec3_t(10., 10., 10.);
+    auto center = F3::vec3_t(16., 16., 32.);
     double radius = 10.;
 
     grid.to_position(x, y, z);

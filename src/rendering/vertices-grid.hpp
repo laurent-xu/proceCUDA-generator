@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <GL/glew.h>
 #include "hermitian-grid.hh"
 
 namespace rendering {
@@ -12,22 +13,29 @@ namespace rendering {
     public:
       VerticesGrid(const HermitianGrid &hermitianGrid, float scale);
 
+    public:
+      void draw();
+
     private:
       point_t _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
       void computeVBO(const HermitianGrid &hermitianGrid, float scale);
       void _addVertex(point_t vertex, std::vector<GLfloat> &buffer_vect);
+      void initVAO();
 
     private:
       std::vector <GLfloat> _vertices;
       std::vector <GLuint> _indices;
       std::vector <GLfloat> _normals;
-      std::vector <GLfloat> _vbo;
+      std::vector <GLfloat> _data;
+      GLuint _VAO;
+      GLuint _VBO;
+      GLuint _EBO;
 
     public:
       const std::vector <GLfloat> &getVertices() const { return _vertices; }
       const std::vector <GLuint> &getIndices() const { return _indices; }
       const std::vector <GLfloat> &getNormals() const { return _normals; }
-      const std::vector <GLfloat> &getVBO() const { return _vbo; }
+      const std::vector <GLfloat> &getData() const { return _data; }
 
     public:
   };

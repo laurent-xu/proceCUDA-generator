@@ -58,6 +58,16 @@ int main(int argc, char* argv[])
   size_t frame_idx = 0;
   Camera camera;
   sf::Clock clock;
+  glm::mat4 model;
+  glm::mat4 view;
+  glm::vec3 lightPos(-4.0f, -13.0f, 9.0f);
+  // Note that we're translating the scene in the reverse direction of where we want to move
+  view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
+  glm::mat4 projection;
+  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+  Shader shader("../resources/shaders/vertex_shader.glsl",
+                "../resources/shaders/fragment_shader.glsl");
+  sf::Vector2f mousePosition(sf::Mouse::getPosition());
 
   bool running = true;
   std::vector<rendering::VerticesGrid> to_be_printed;
@@ -76,8 +86,9 @@ int main(int argc, char* argv[])
     // TODO Anatole Compute the grids_info according to the camera position
     //       with the octree
     std::vector<GridInfo> grids_info;
-    for (size_t i = 0; i < 100; ++i)
+    for (size_t i = 0; i < 1; ++i)
       grids_info.emplace_back(1., F3::vec3_t(0., 0., 0.), 32);
+    grids_info.emplace_back(1., F3::vec3_t(0., 0., 32.), 32);
 
     to_be_printed.clear();
     for (const auto& info: grids_info)
@@ -101,9 +112,30 @@ int main(int argc, char* argv[])
     std::cerr << "Frame " << frame_idx++ << " is computed" << std::endl;
 
     // Get input and update camera position
-    sf::Vector2f mousePosition(sf::Mouse::getPosition());
     updateCamera(camera, clock.getElapsedTime().asSeconds(), mousePosition);
     clock.restart();
+
+    shader.Use();
+
+    GLint lightPosLoc = glGetUniformLocation(shader.getProgram(), "lightPos");
+    GLint objectColorLoc = glGetUniformLocation(shader.getProgram(), "objectColor");
+    GLint lightColorLoc  = glGetUniformLocation(shader.getProgram(), "lightColor");
+    glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+    glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f); // Also set light's color (white)
+    glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+
+    GLint modelLoc = glGetUniformLocation(shader.getProgram(), "model");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    GLint viewLoc = glGetUniformLocation(shader.getProgram(), "view");
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+    GLint projLoc = glGetUniformLocation(shader.getProgram(), "projection");
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    GLint viewerLocPos = glGetUniformLocation(shader.getProgram(), "viewerPos");
+    glUniform3f(viewerLocPos, camera.getPosition().x, camera.getPosition().y,
+                camera.getPosition().z);
+
+    for (auto &e : to_be_printed)
+      e.draw();
 
     // Draw window
     window->display();
