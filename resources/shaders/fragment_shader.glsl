@@ -7,8 +7,10 @@ uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewerPos;
 
+in vec3 fwd_normal;
+in vec3 fragPos;
+
 void main() {
-/*
     float ambient_strenght = 0.1f;
     float specular_strenght = 0.5f;
     vec3 ambientLight = lightColor * ambient_strenght;
@@ -21,6 +23,4 @@ void main() {
     float diffLight = max(dot(nNormal, nFragPos), 0.0f);
     vec3 light = diffLight + ambientLight + specLight;
     color = vec4(light * objectColor, 1.0f);
-    */
-    color = vec4(1.0, 0.0, 0.0, 1.0);
 }

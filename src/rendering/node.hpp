@@ -17,6 +17,45 @@ namespace rendering {
     data_t x = 0;
     data_t y = 0;
     data_t z = 0;
+
+    float norm() {
+      return sqrt(x * x + y * y + z * z);
+    }
+
+    point_t scale(float scale) const {
+      auto p = point_t(x, y, z);
+      p.x *= scale;
+      p.y *= scale;
+      p.z *= scale;
+      return p;
+    }
+
+    point_t &operator+=(const point_t &other) {
+      this->x += other.x;
+      this->y += other.y;
+      this->z += other.z;
+      return *this;
+    }
+
+    point_t &operator-=(const point_t &other) {
+      this->x -= other.x;
+      this->y -= other.y;
+      this->z -= other.z;
+      return *this;
+    }
+
+    const point_t operator+(const point_t &other) const {
+      auto result = *this;
+      result += other;
+      return result;
+    }
+
+    const point_t operator-(const point_t &other) const {
+      auto result = *this;
+      result -= other;
+      return result;
+    }
+
   };
 
   inline std::ostream &operator<<(std::ostream &os, const point_t &p) {
@@ -33,7 +72,6 @@ namespace rendering {
     point_t min;
     point_t vertex_pos;
     point_t intersections;
-    int vbo_idx = -1;
   };
 
   inline std::ostream &operator<<(std::ostream &os, const node_t &n) {

@@ -23,7 +23,7 @@ namespace rendering {
       void _initSurfaceNodes();
       void _computeIntersections();
       data_t _computeIntersectionOffset(data_t a, data_t b);
-      void _computeVertices();
+      void _computeContouringVertices();
       point_t _computeVerticeForNode(int x, int y, int z);
       void _registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
                                            const std::vector<data_t> &N, const node_t &node,
@@ -32,16 +32,17 @@ namespace rendering {
                                          const std::vector<data_t> &N, const node_t &node, int axis);
 
     public:
-      bool pointContainsFeature(int x, int y, int z);
+      bool pointContainsFeature(int x, int y, int z) const;
       bool isSurface(int x, int y, int z);
-      const node_t &getValueAt(int x, int y, int z) { return _grid[z][y * _dimensions.x + x]; }
-      point_t getDimensions() { return _dimensions; }
-      std::vector<GLfloat> computeVertices(float scale);
-      std::vector<GLuint> computeEBO();
+      const node_t &getValueAt(int x, int y, int z) const { return _grid[z][y * _dimensions.x + x]; }
+      point_t getDimensions() const { return _dimensions; }
+      void computeVBOIndices();
 
     public:
       static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
       static void printHermitianGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);
+
+    private:
 
     public:
       const std::vector<std::vector<node_t>> &getGrid() const { return _grid; }
