@@ -8,3 +8,5 @@ set(COMPILATION_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/parser.cc
     PARENT_SCOPE)
 
+add_executable(compile2cuda main.cc)
+target_link_libraries(compile2cuda; compilation)
