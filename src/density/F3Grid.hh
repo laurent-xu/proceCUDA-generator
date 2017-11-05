@@ -29,6 +29,11 @@ struct GridInfo
   dist_t precision;
   vec3_t offset;
   size_t dimension;
+
+  BOTH_TARGET vec3_t to_position(size_t x, size_t y, size_t z) const
+  {
+    return offset + vec3_t(x, y, z) * precision;
+  }
 };
 
 template <bool DeviceImplementation>
@@ -63,7 +68,7 @@ public:
 
   BOTH_TARGET vec3_t to_position(size_t x, size_t y, size_t z) const
   {
-    return info_.offset + vec3_t(x, y, z) * info_.precision;
+    return info_.to_position(x, y, z);
   }
 
   BOTH_TARGET F3* get_grid()
