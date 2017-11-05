@@ -13,6 +13,7 @@ namespace rendering {
     using vec3_t = F3::vec3_t;
     point_t() {}
     point_t(vec3_t vec) : x(vec.x), y(vec.y), z(vec.z) {}
+    point_t(float a) : x(a), y(a), z(a) {}
     point_t(float x, float y, float z) : x(x), y(y), z(z) {}
     data_t x = 0;
     data_t y = 0;
