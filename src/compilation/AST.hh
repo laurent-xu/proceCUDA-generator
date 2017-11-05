@@ -53,9 +53,9 @@ public:
 
   virtual void accept(Visitor& v) override;
 
-  const astnode_t input;
   const std::string min;
   const std::string max;
+  const astnode_t input;
 };
 
 class ConstantNode: public Node

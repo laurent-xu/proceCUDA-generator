@@ -3,7 +3,7 @@
 #include <streambuf>
 #include <density/Sphere.hh>
 #include <compilation/AST.hh>
-#include <compilation/DotVisitor.hh>
+#include <compilation/CompileVisitor.hh>
 
 int main(int argc, char* argv[])
 {
@@ -14,8 +14,7 @@ int main(int argc, char* argv[])
                            std::istreambuf_iterator<char>());
     auto root = Node::parse(str);
 
-    /*
-    auto v = CompileVisitor();
+    auto v = CompileVisitor(root->output_name);
     root->accept(v);
 
     auto cu_fs = std::ofstream(argv[2]);
@@ -30,7 +29,7 @@ int main(int argc, char* argv[])
     {
       cc_fs << v.get_cc() << std::endl;
       cc_fs.close();
-    }*/
+    }
     (void)root;
   }
   else

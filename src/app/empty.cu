@@ -2,11 +2,11 @@
 #include <utils/glm.hh>
 #include "generation_kernel.hh"
 
-__global__ void kernel_f3(GridF3<true> grid)
+__global__ void kernel_f3_caller(GridF3<true> grid)
 {
-  unsigned int x = blockDim.x * blockIdx.x + threadIdx.x;
-  unsigned int y = blockDim.y * blockIdx.y + threadIdx.y;
-  unsigned int z = blockDim.z * blockIdx.z + threadIdx.z;
+  size_t x = blockDim.x * blockIdx.x + threadIdx.x;
+  size_t y = blockDim.y * blockIdx.y + threadIdx.y;
+  size_t z = blockDim.z * blockIdx.z + threadIdx.z;
   size_t dimension = grid.dim_size();
 
   if (x < dimension && y < dimension && z < dimension)

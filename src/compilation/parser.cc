@@ -296,13 +296,13 @@ auto SpatializeNode::parse(ParsingStringStream& parsing_stream) -> astnode_t
                                                             "Spatialize");
   auto input = Node::parse(parsing_stream);
   parsing_stream.get_next_lexeme_expected(Token::CLOSE, "Spatialize");
-  return std::make_shared<SpatializeCubeMapNode>(center_x.str,
-                                                 center_y.str,
-                                                 center_z.str,
-                                                 radius.str,
-                                                 min_radius.str,
-                                                 max_radius.str,
-                                                 input);
+  return std::make_shared<SpatializeNode>(center_x.str,
+                                          center_y.str,
+                                          center_z.str,
+                                          radius.str,
+                                          min_radius.str,
+                                          max_radius.str,
+                                          input);
 }
 
 auto SphereNode::parse(ParsingStringStream& parsing_stream) -> astnode_t
