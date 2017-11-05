@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <rendering/utils/nm-matrix.hpp>
+#include <density/F3Grid.hh>
 #include <tgmath.h>
 #include "hermitian-grid.hh"
 #include "qr-decomposition.hpp"
@@ -27,12 +28,18 @@ namespace rendering {
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
-        for (size_t j = 0; j < dimensions.x; j++)
+        for (size_t j = 0; j < dimensions.x; j++) {
           _densityGrid[k].push_back(gridF3->at(j, i, k));
+        }
     }
     _grid = _densityGrid;
     _initSurfaceNodes();
     computeVBOIndices();
+    for (size_t k = 0; k < dimensions.z; k++)
+      for (size_t i = 0; i < dimensions.y; i++)
+        for (size_t j = 0; j < dimensions.x; j++) {
+          _grid[k][i * dimensions.x + j].vertex_pos = gridF3->get_grid_info().to_position(j, i, k);
+        }
     _computeIntersections();
     _computeContouringVertices(); // TODO: dual contouring
   }
@@ -74,11 +81,6 @@ namespace rendering {
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
-          node.vertex_pos = point_t(
-              (float) (node.min.x - (float) (_dimensions.x) / 2.0f),
-              (float) (node.min.y - (float) (_dimensions.y) / 2.0f),
-              (float) (node.min.z - (float) (_dimensions.z) / 2.0f)
-          );
           /*
           if (node.value == 0)
             _computeVerticeForNode(x, y, z); // TODO: dual contouring
