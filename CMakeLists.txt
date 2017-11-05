@@ -11,7 +11,7 @@ set(CUDA_NVCC_FLAGS -arch=sm_61 -Xcompiler -DCUDA_CODE
     -Xcompiler -DCUDA_GENERATION -Xcompiler
     -D__CORRECT_ISO_CPP11_MATH_H_PROTO
     --compiler-bindir /usr/bin/g++-5
-    -Xcompiler -fPIC)
+    -Xcompiler -fPIC --expt-relaxed-constexpr)
 
 MESSAGE("glew not found, installing glew")
 execute_process(COMMAND git submodule update --init -- ThirdParties/glew
