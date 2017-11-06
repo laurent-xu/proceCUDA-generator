@@ -25,9 +25,11 @@ static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
   dim3 Db(thread_per_dim, thread_per_dim, thread_per_dim);
 
   auto result = GridF3<true>::get_grid(info);
+  result->hold();
   kernel_f3_caller<<<Dg,Db>>>(*result);
   // TODO Remove the next line
   cudaDeviceSynchronize();
+  result->release();
   return result;
 }
 #else

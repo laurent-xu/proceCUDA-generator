@@ -62,10 +62,13 @@ public:
 
   HOST_TARGET ~GridF3()
   {
-    if (DeviceImplementation)
-      HOST_FREE(points_);
-    else
-      delete[] points_;
+    if (!hold_)
+    {
+      if (DeviceImplementation)
+        HOST_FREE(points_);
+      else
+        free(points_);
+    }
   }
 
   BOTH_TARGET size_t dim_size() const { return info_.dimension; }
@@ -91,6 +94,9 @@ public:
     return info_;
   }
 
+  HOST_TARGET void hold() { hold_ = true; }
+  HOST_TARGET void release() { hold_ = false; }
+
 private:
   friend class GridF3<true>;
   friend class GridF3<false>;
@@ -104,7 +110,7 @@ private:
     if (DeviceImplementation)
       HOST_MALLOC(points_, size);
     else
-      points_ = new F3[size];
+      points_ = (F3*)malloc(size);
   }
 
   HOST_TARGET GridF3(const GridInfo& info)
@@ -115,11 +121,12 @@ private:
     if (DeviceImplementation)
       HOST_MALLOC(points_, size);
     else
-      points_ = new F3[size];
+      points_ = (F3*)malloc(size);
   }
 
   F3* points_;
   const GridInfo info_;
+  bool hold_ = false;
 };
 
 #ifdef CUDA_CODE
@@ -130,7 +137,8 @@ copy_to_host(const GridF3<true>::grid_t& in)
   auto dimension = in->dim_size();
   auto size = dimension * dimension * dimension * sizeof(F3);
   cudaMemcpy((void*)result->get_grid(), (void*)in->get_grid(), size,
-             cudaMemcpyHostToDevice);
+             cudaMemcpyDeviceToHost);
+  cudaCheckError();
   return result;
 }
 
@@ -142,6 +150,7 @@ copy_to_device(const GridF3<false>::grid_t& in)
   auto size = dimension * dimension * dimension * sizeof(F3);
   cudaMemcpy((void*)result->get_grid(), (void*)in->get_grid(), size,
              cudaMemcpyHostToDevice);
+  cudaCheckError();
   return result;
 }
 #endif
