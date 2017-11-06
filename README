@@ -1,7 +1,0 @@
-### Dependencies:
-- glew 2.1
-- glm 0.9
-- glfw 3.0
-
-### How to compile:
-    mkdir build && cd build && cmake .. && make # enjoy
