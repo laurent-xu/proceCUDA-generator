@@ -19,7 +19,7 @@
 static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
 {
   size_t dimension = info.dimension;
-  size_t thread_per_dim = 8;
+  size_t thread_per_dim = 4;
   size_t block_dim = (dimension + thread_per_dim - 1) / thread_per_dim;
   dim3 Dg(block_dim, block_dim, block_dim);
   dim3 Db(thread_per_dim, thread_per_dim, thread_per_dim);
@@ -146,8 +146,8 @@ int main(int argc, char* argv[])
     //       with the octree
     std::vector<GridInfo> grids_info;
     for (size_t i = 0; i < 1; ++i)
-      grids_info.emplace_back(1., F3::vec3_t(0., 0., 0.), 32);
-    grids_info.emplace_back(1., F3::vec3_t(0., 0., 32.), 32);
+      grids_info.emplace_back(1., F3::vec3_t(0., 0., 0.), 8);
+    grids_info.emplace_back(1., F3::vec3_t(0., 0., 32.), 8);
 
     to_be_printed.clear();
 
