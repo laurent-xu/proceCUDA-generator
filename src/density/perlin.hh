@@ -8,6 +8,12 @@ inline static double smooth(double x)
 }
 
 DEVICE_TARGET
+inline static double smooth_d(double x)
+{
+    return 6 * x - 6 * x * x;
+}
+
+DEVICE_TARGET
 inline static double linear_interpolate(double a, double b, double t)
 {
     return (1. - t) * a + t * b;
@@ -88,6 +94,9 @@ inline static F3 perlin(const F3::vec3_t& position,
     const double u = smooth(x);
     const double v = smooth(y);
     const double w = smooth(z);
+    const double d_u = smooth_d(x);
+    const double d_v = smooth_d(y);
+    const double d_w = smooth_d(z);
 
     // Interpolate
     const double x00 = linear_interpolate(g000, g100, u);
@@ -100,7 +109,19 @@ inline static F3 perlin(const F3::vec3_t& position,
 
     const double xyz = linear_interpolate(xy0, xy1, w);
 
-    return F3{xyz, F3::vec3_t(0, 0, 0)};
+    const double k1 = g100 - g000;
+    const double k2 = g010 - g000;
+    const double k3 = g001 - g000;
+    const double k4 = g000 - g100 - g010 + g110;
+    const double k5 = g000 - g010 - g001 + g011;
+    const double k6 = g000 - g100 - g001 + g101;
+    const double k7 = - g000 + g100 + g010 - g110 + g001 - g101 - g011 + g111;
+
+    double d_x = 2.0 * d_u * (k1 + k4 * v + k6 * w + k7 * v * w);
+    double d_y = 2.0 * d_v * (k2 + k5 * w + k4 * u + k7 * w * u);
+    double d_z = 2.0 * d_w * (k3 + k6 * u + k5 * v + k7 * u * v);
+
+    return F3{xyz, F3::vec3_t(d_x, d_y, d_z)};
 }
 
 }
