@@ -2,6 +2,7 @@
 #include <density/F3Grid.hh>
 #include <utils/cudamacro.hh>
 #include <utils/glm.hh>
+#include "perlin.hh"
 
 namespace density
 {
@@ -37,16 +38,6 @@ namespace density
   DEVICE_TARGET inline static F3 multiply(const F3& in, Args&&... args)
   {
     return in * add(std::forward<Args>(args)...);
-  }
-
-  DEVICE_TARGET
-  inline static F3 perlin(const F3::vec3_t& position,
-                          double normalization, size_t seed)
-  {
-    (void) position;
-    (void) normalization;
-    (void) seed;
-    return F3{0, F3::vec3_t{0., 0., 0.}};
   }
 
   DEVICE_TARGET inline static F3 polynom(const F3&, double c)
