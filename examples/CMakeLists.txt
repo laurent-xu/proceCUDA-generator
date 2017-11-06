@@ -17,11 +17,16 @@ foreach(file ${files})
                                 ${GENERATED_FILES}/${current_file}.cc
                                 2>/dev/null
                              \; echo ok
-                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/examples)
+                     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/examples
+                     DEPENDS ${file})
 
   if(EXISTS ${GENERATED_FILES}/${current_file}.cu)
-    cuda_add_library(cudalib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cu)
-    add_library(lib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cc)
-    add_custom_target(${current_target}lib ALL DEPENDS cudalib${current_file} lib${current_file} ${current_target})
+    cuda_add_executable(cudaapp${current_file} ${CUDA_APP_SOURCES} ${GENERATED_FILES}/${current_file}.cu)
+    target_link_libraries(cudaapp${current_file} ; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
+    add_executable(app${current_file} ${APP_SOURCES} ${GENERATED_FILES}/${current_file}.cc)
+    target_link_libraries(app${current_file}; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
+    #cuda_add_library(cudalib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cu)
+    #add_library(lib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cc)
+    #add_custom_target(${current_target}lib ALL DEPENDS cudaapp${current_file} app${current_file} ${current_target})
   endif()
 endforeach()

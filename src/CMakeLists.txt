@@ -5,11 +5,9 @@ add_subdirectory(rendering)
 
 add_library(rendering SHARED ${RENDERING_SOURCES})
 add_library(compilation SHARED ${COMPILATION_SOURCES})
-add_library(emptygeneration SHARED ${EMPTY_GENERATION_SOURCES})
-cuda_add_library(cudaemptygeneration SHARED ${CUDA_EMPTY_GENERATION_SOURCES})
 
-add_executable(app ${APP_SOURCES})
-target_link_libraries(app; emptygeneration; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
+set(APP_SOURCES ${APP_SOURCES}
+    PARENT_SCOPE)
 
-cuda_add_executable(cudaapp ${CUDA_APP_SOURCES})
-target_link_libraries(cudaapp; cudaemptygeneration; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
+  set(CUDA_APP_SOURCES ${CUDA_APP_SOURCES}
+    PARENT_SCOPE)
