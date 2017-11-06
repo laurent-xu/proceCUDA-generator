@@ -22,7 +22,7 @@ inline static double linear_interpolate(double a, double b, double t)
 DEVICE_TARGET
 inline static F3::vec3_t get_grad(int x, int y, int z, size_t seed)
 {
-    static constexpr int permutations[] =
+    constexpr int permutations[] =
     {
         151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,
         36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,
@@ -41,7 +41,7 @@ inline static F3::vec3_t get_grad(int x, int y, int z, size_t seed)
         127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,
         128,195,78,66,215,61,156,180
     };
-    static constexpr int grad[16][3] =
+    constexpr int grad[16][3] =
     {
         {1,1,0}, {-1,1,0}, {1,-1,0}, {-1,-1,0},
         {1,0,1}, {-1,0,1}, {1,0,-1}, {-1,0,-1},

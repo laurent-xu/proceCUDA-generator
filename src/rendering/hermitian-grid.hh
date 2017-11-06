@@ -35,6 +35,7 @@ namespace rendering {
       bool pointContainsFeature(int x, int y, int z) const;
       bool isSurface(int x, int y, int z);
       const node_t &getValueAt(int x, int y, int z) const { return _grid[z][y * _dimensions.x + x]; }
+      const node_t &getValueAt(point_t p) const { return _grid[p.z][p.y * _dimensions.x + p.x]; }
       point_t getDimensions() const { return _dimensions; }
       void computeVBOIndices();
 

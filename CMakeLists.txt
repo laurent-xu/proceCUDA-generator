@@ -7,9 +7,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 find_package(CUDA REQUIRED)
 
-set(CUDA_NVCC_FLAGS -arch=sm_61 -Xcompiler -DCUDA_CODE
+set(CUDA_NVCC_FLAGS -Xcompiler -DCUDA_CODE
     -Xcompiler -DCUDA_GENERATION -Xcompiler
     -D__CORRECT_ISO_CPP11_MATH_H_PROTO
+        -D_MWAITXINTRIN_H_INCLUDED
+        -D_FORCE_INLINES
+        -D__STRICT_ANSI__
     --compiler-bindir /usr/bin/g++-5
     -Xcompiler -fPIC --expt-relaxed-constexpr)
 

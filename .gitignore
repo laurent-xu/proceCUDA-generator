@@ -1,6 +1,7 @@
 .idea/
 bin/
 build/
+generated_files/
 cmake-build-debug
 *.o
 *.a

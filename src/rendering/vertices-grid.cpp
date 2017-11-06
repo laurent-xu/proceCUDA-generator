@@ -22,16 +22,6 @@ namespace rendering {
   }
 
   void VerticesGrid::computeVBO(const HermitianGrid &hermitianGrid, float scale) {
-    /*
-    for (int z = 0; z < hermitianGrid.getDimensions().z; z++)
-      for (int y = 0; y < hermitianGrid.getDimensions().y; y++)
-        for (int x = 0; x < hermitianGrid.getDimensions().x; x++) {
-          auto &node = hermitianGrid.getValueAt(x, y, z);
-          if (hermitianGrid.pointContainsFeature(x, y, z)) {
-            _addVertex(node.vertex_pos.scale(scale), _vertices);
-          }
-        }
-        */
     unsigned int vbo_idx = 0;
     // Indices of previous vertices to avoid duplication.
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++) {
@@ -159,5 +149,34 @@ namespace rendering {
       glDrawElements(GL_TRIANGLES, (GLsizei) _indices.size(), GL_UNSIGNED_INT, 0);
     } glBindVertexArray(0);
   }
+
+  void VerticesGrid::addCube(const HermitianGrid &hermitianGrid, unsigned int &vbo_idx, float scale,
+                             point_t a, point_t b, point_t c, point_t d)
+  {
+    if (a.x + 1 < hermitianGrid.getDimensions().x && hermitianGrid.pointContainsFeature(a.x + 1, a.y, a.z)
+        && a.y + 1 < hermitianGrid.getDimensions().y && hermitianGrid.pointContainsFeature(a.x, a.y + 1, a.z)
+        && hermitianGrid.pointContainsFeature(a.x + 1, a.y + 1, a.z)) {
+      auto normal = _computeNormal(hermitianGrid.getValueAt(a).vertex_pos.scale(scale),
+                                   hermitianGrid.getValueAt(b).vertex_pos.scale(scale),
+                                   hermitianGrid.getValueAt(c).vertex_pos.scale(scale));
+      normal = normal.scale(1 / normal.norm());
+      _addVertex(normal, _normals);
+      _addVertex(normal, _normals);
+      _addVertex(normal, _normals);
+      _addVertex(normal, _normals);
+      _addVertex(hermitianGrid.getValueAt(a).vertex_pos.scale(scale), _vertices);
+      _addVertex(hermitianGrid.getValueAt(b).vertex_pos.scale(scale), _vertices);
+      _addVertex(hermitianGrid.getValueAt(c).vertex_pos.scale(scale), _vertices);
+      _addVertex(hermitianGrid.getValueAt(d).vertex_pos.scale(scale), _vertices);
+      _indices.push_back(vbo_idx);
+      _indices.push_back(vbo_idx + 1);
+      _indices.push_back(vbo_idx + 2);
+      _indices.push_back(vbo_idx);
+      _indices.push_back(vbo_idx + 2);
+      _indices.push_back(vbo_idx + 3);
+      vbo_idx += 4;
+    }
+  }
 }
+
 
