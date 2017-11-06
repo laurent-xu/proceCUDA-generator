@@ -133,6 +133,7 @@ void CompileVisitor::visit(SpatializeNode& n)
   std::string projected_position = "projected_position_" + n.output_name;
   std::string dist = "dist_" + n.output_name;
   std::string center = "center_" + n.output_name;
+  std::string center_to_pos = "center_to_pos_" + n.output_name;
   std::string height = "height_" + n.output_name;
   std::string height_function = height + "_f";
 
@@ -147,8 +148,10 @@ void CompileVisitor::visit(SpatializeNode& n)
                     " = {0. , F3::vec3_t(0., 0., 0.)};");
   f.lines.push_back("F3::vec3_t " + center + " = F3::vec3_t(" +
                     n.center_x + ", " + n.center_y + ", " + n.center_z + ");");
+  f.lines.push_back("F3::vec3_t " + center_to_pos +
+                    " = position - " + center + ";");
   f.lines.push_back("F3::dist_t " + dist +
-                    " = glm::distance(position, " + center + ");");
+                    " = glm::length(" + center_to_pos + ");");
   f.lines.push_back("if (" + dist + " > " + n.min_radius +
                     " && " + dist + " < " + n.max_radius + ")");
   f.lines.push_back("{");
@@ -158,7 +161,7 @@ void CompileVisitor::visit(SpatializeNode& n)
   f.lines.push_back("  F3 " + height + " = " + height_function + "("
                     + projected_position + ");");
   f.lines.push_back("  " + n.output_name + " = density::spatialize(" + height +
-                    ", " + n.radius + ");");
+                    ", " + n.radius + ", " + center_to_pos + ");");
   f.lines.push_back("}");
 }
 

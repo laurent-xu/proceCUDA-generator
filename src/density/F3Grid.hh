@@ -13,6 +13,16 @@ struct F3
   using vec3_t = glm::tvec3<dist_t>;
   val_t val;
   vec3_t grad;
+
+  BOTH_TARGET F3 operator+(const F3& other) const
+  {
+    return F3{val + other.val, grad + other.grad};
+  }
+
+  BOTH_TARGET F3 operator*(const F3& other) const
+  {
+    return F3{val * other.val, grad * other.val + val * other.grad};
+  }
 };
 
 struct GridInfo
