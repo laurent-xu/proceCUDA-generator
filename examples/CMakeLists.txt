@@ -25,8 +25,10 @@ foreach(file ${files})
     target_link_libraries(cudaapp${current_file} ; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
     add_executable(app${current_file} ${APP_SOURCES} ${GENERATED_FILES}/${current_file}.cc)
     target_link_libraries(app${current_file}; rendering; ${SFML_LIBRARIES}; ${GLEW_LIBRARIES}; GL;)
-    #cuda_add_library(cudalib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cu)
-    #add_library(lib${current_file} SHARED ${GENERATED_FILES}/${current_file}.cc)
-    #add_custom_target(${current_target}lib ALL DEPENDS cudaapp${current_file} app${current_file} ${current_target})
+    set(GENERATED_TARGETS ${GENERATED_TARGETS} ${current_target})
   endif()
 endforeach()
+add_custom_target(second_make ALL DEPENDS ${GENERATED_TARGETS})
+add_custom_command(TARGET second_make
+                   COMMAND cmake . && make
+                   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
