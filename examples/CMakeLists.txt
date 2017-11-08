@@ -28,7 +28,7 @@ foreach(file ${files})
     set(GENERATED_TARGETS ${GENERATED_TARGETS} ${current_target})
   endif()
 endforeach()
-add_custom_target(second_make ALL DEPENDS ${GENERATED_TARGETS})
-add_custom_command(TARGET second_make
+add_custom_target(gen_examples DEPENDS ${GENERATED_TARGETS})
+add_custom_command(TARGET gen_examples
                    COMMAND cmake . && make
                    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
