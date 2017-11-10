@@ -35,14 +35,24 @@
       exit(EXIT_FAILURE);                                                        \
     }                                                                            \
   } while(0)
+
+#ifdef CUDA_GENERTION
+#define GENERATION_TYPE true
+#endif
+#ifdef CUDA_RENDERING
+#define RENDERING_TYPE true
+#endif
+
 #else
-#define BOTH_TARGET   /**/
-#define DEVICE_TARGET /**/
-#define HOST_TARGET   /**/
+#define BOTH_TARGET
+#define DEVICE_TARGET
+#define HOST_TARGET
 #define HOST_MALLOC(ptr, size) do {      \
     ptr = (decltype (ptr))malloc((size));\
   } while(0)
 #define HOST_FREE(ptr) do {              \
     free(ptr);                           \
   } while(0)
+#define GENRATION_TYPE false
+#define RENDERING_TYPE false
 #endif
