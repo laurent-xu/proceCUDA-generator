@@ -1,6 +1,7 @@
 #include <app/make_density.hh>
+#include <app/generation_kernel.hh>
 
-void AsynchronousGridMaker::make_octree(std::shared_ptr<glm::vec3> position)
+void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();
   size_t nb_voxels = 32.;
@@ -11,23 +12,36 @@ void AsynchronousGridMaker::make_octree(std::shared_ptr<glm::vec3> position)
   for (auto x: {-1, 0, 1})
     for (auto y: {-1, 0, 1})
       for (auto z: {-1, 0, 1})
-        grids_info.emplace_back(1., position + F3::vec3_t(x, y, z) * nb_voxels,
+        grids_info.emplace_back(1., origin +
+                                F3::vec3_t(x, y, z) * double(nb_voxels),
                                 nb_voxels);
 }
 
 void AsynchronousGridMaker::make_grids()
 {
+  size_t frame_idx = 0;
   while (running)
   {
-    while(!*generation_position)
-      cv_generation(lock);
     std::shared_ptr<glm::vec3> current_position;
-    std::atomic_exchange(generation_position, current_position);
+    {
+      std::unique_lock<std::mutex> lock(m);
+      while(!*generation_position)
+        cv_generation.wait(lock);
+      current_position = std::atomic_exchange(generation_position,
+                                              current_position);
+    }
+
+    if (previous_position == *current_position)
+      continue;
+    previous_position = *current_position;
+
+    std::cerr << "Compute" << std::endl;
 
     // TODO Anatole Compute the grids_info according to the camera position
     //       with the octree
-    make_octree(current_position);
-    std::vector<rendering::VerticesGrid> to_be_printed;
+    make_octree(*current_position);
+    auto to_be_printed =
+      std::make_shared<std::vector<rendering::VerticesGrid>>();
     std::vector<GridInfo> generation_grids_info;
 
     for (const auto& info: grids_info)
@@ -51,10 +65,9 @@ void AsynchronousGridMaker::make_grids()
       // Bellow the scale is 0.2. This value can be tweaked for bigger/smaller map
       auto vertices_grid = rendering::VerticesGrid(hermitian_grid, 0.2);
       // cache_lru.add(info, vertices_grids) TODO Anatole
-      to_be_printed.push_back(vertices_grid);
+      to_be_printed->push_back(vertices_grid);
     }
     std::cerr << "Frame " << frame_idx++ << " is computed" << std::endl;
-    std::atomic_load(vertices, to_be_printed);
-
+    std::atomic_store(vertices, to_be_printed);
   }
 }

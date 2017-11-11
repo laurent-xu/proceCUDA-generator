@@ -7,6 +7,7 @@
 
 #include "options.hpp"
 #include <density/F3Grid.hh>
+#include <iostream>
 
 namespace rendering {
   struct point_t {

@@ -68,21 +68,15 @@ class Camera
   GLfloat movementSpeed;
   GLfloat mouseSensitivity;
   public:
-  GLfloat getZoom() const {
-    return zoom;
-  }
+  GLfloat getZoom() const {return zoom;}
 
-  void setZoom(GLfloat zoom) {
-    Camera::zoom = zoom;
-  }
+  void setZoom(GLfloat zoom) {Camera::zoom = zoom;}
 
   private:
   GLfloat zoom;
 
   public:
-  const glm::vec3 &getPosition() const {
-    return position;
-  }
+  const glm::vec3& getPosition() const {return position;}
 
   void setPosition(glm::vec3 &position) {
     Camera::position = position;

@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 find_package(CUDA REQUIRED)
+find_package (Threads REQUIRED)
 
 set(CUDA_NVCC_FLAGS -Xcompiler -DCUDA_CODE
     -Xcompiler -DCUDA_GENERATION -Xcompiler
