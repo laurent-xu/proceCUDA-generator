@@ -4,6 +4,7 @@
 
 #include "shader_compiler.hh"
 #include "file_reader.hh"
+#include <utils/cudamacro.hh>
 
 #include <iostream>
 // GLEW
@@ -25,10 +26,11 @@ GLuint shader_compiler::compile(std::string filename, GLenum shader_type) {
   glCompileShader(shader);
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &bufflen);
-  if (success != GL_TRUE) {
+  if (success != GL_TRUE)
+  {
     glGetShaderInfoLog(shader, 512, NULL, infolog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-    << infolog << std::endl;
+    CERR << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
+         << infolog << std::endl;
     return 0;
   }
   return shader;

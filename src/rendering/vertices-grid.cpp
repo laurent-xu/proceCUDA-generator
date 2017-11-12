@@ -2,6 +2,7 @@
 // Created by leo on 11/4/17.
 //
 
+#include <utils/cudamacro.hh>
 #include <iostream>
 #include "vertices-grid.hpp"
 
@@ -102,8 +103,8 @@ namespace rendering {
         }
       }
     }
-    std::cout << "normals " << _normals.size() << std::endl;
-    std::cout << "vertices " << _vertices.size() << std::endl;
+    CERR << "normals " << _normals.size() << std::endl;
+    CERR << "vertices " << _vertices.size() << std::endl;
     for (size_t i = 0; i < _vertices.size(); i += 3) {
       _data.push_back(_vertices[i]);
       _data.push_back(_vertices[i + 1]);

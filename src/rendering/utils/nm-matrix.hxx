@@ -2,6 +2,7 @@
 // Created by leo on 10/9/17.
 //
 
+#include <utils/cudamacro.hh>
 #include <vector>
 #include <iosfwd>
 #include <iostream>
@@ -58,8 +59,8 @@ namespace rendering {
     void nmMatrix::print(const std::vector<T> &A, int n, int m, int space) {
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++)
-          std::cout << std::right << std::setw(space) << A[i * m + j];
-        std::cout << std::endl;
+          CERR << std::right << std::setw(space) << A[i * m + j];
+        CERR << std::endl;
       }
     }
 

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <condition_variable>
 #include <thread>
+#include <cuda_profiler_api.h>
 
 void print_help(const std::string& bin)
 {
@@ -34,10 +35,10 @@ glm::vec3 parse_camera(int argc, char* argv[])
   else
     print_help(argv[0]);
 
-  std::cout << "Initial position is ("
-            << camera_position.x << ", "
-            << camera_position.y << ", "
-            << camera_position.y << ")" << std::endl;
+  CERR << "Initial position is ("
+       << camera_position.x << ", "
+       << camera_position.y << ", "
+       << camera_position.y << ")" << std::endl;
 
   return camera_position;
 }
@@ -58,7 +59,7 @@ int main(int argc, char* argv[])
   window->setVerticalSyncEnabled(true);
   glEnable(GL_DEPTH_TEST);
   if (glewInit() == GLEW_OK)
-    std::cout << "Glew initialized successfully" << std::endl;
+    CERR << "Glew initialized successfully" << std::endl;
 
   auto renderer = AsynchronousRendering(window, &generation_position, running,
                                         &vertices, cv_generation, m);
@@ -69,10 +70,13 @@ int main(int argc, char* argv[])
   renderer.render_grids();
   {
     std::unique_lock<std::mutex> lock(m);
-    std::cerr << "notify end " << std::endl;
+    CERR << "notify end " << std::endl;
     cv_generation.notify_one();
   }
+  CERR << "notified" << std::endl;
   grid_maker_thread.join();
+  std::cerr << "thread joined" << std::endl;
+  cudaProfilerStop();
 
   return 0;
 }

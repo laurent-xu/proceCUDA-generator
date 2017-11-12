@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <rendering/utils/nm-matrix.hpp>
+#include <utils/cudamacro.hh>
 #include <density/F3Grid.hh>
 #include <tgmath.h>
 #include "hermitian-grid.hh"
@@ -109,7 +110,7 @@ namespace rendering {
     auto xb = qrd.extractBb();
     utils::nmMatrix::print(xb, 3, 1, 12);
     auto r = qrd.getR();
-    std::cout << r << std::endl;
+    CERR << r << std::endl;
     return point_t(0, 0, 0);
   }
 
@@ -164,32 +165,32 @@ namespace rendering {
 
   void HermitianGrid::printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions) {
     for (int z = 0; z < dimensions.z; z++) {
-      std::cout << "-- z = " << z << std::endl;
+      CERR << "-- z = " << z << std::endl;
       for (int y = 0; y < dimensions.y; y++) {
         for (int x = 0; x < dimensions.x; x++) {
-          std::cout << std::right << std::setw(10)
+          CERR << std::right << std::setw(10)
                     << "[" << density_grid[z][y * dimensions.x + x].value << ", "
                     << "(" << density_grid[z][y * dimensions.x + x].gradient.x << ", "
                     << density_grid[z][y * dimensions.x + x].gradient.y << ", "
                     << density_grid[z][y * dimensions.x + x].gradient.z << ")]";
         }
-        std::cout << std::endl;
+        CERR << std::endl;
       }
     }
   }
 
   void HermitianGrid::printHermitianGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions) {
     for (int z = 0; z < dimensions.z; z++) {
-      std::cout << "-- z = " << z << std::endl;
+      CERR << "-- z = " << z << std::endl;
       for (int y = 0; y < dimensions.y; y++) {
         for (int x = 0; x < dimensions.x; x++) {
-          std::cout << std::right << std::setw(10)
+          CERR << std::right << std::setw(10)
                     << "[" << density_grid[z][y * dimensions.x + x].value << ", "
                     << "(" << density_grid[z][y * dimensions.x + x].intersections.x << ", "
                     << density_grid[z][y * dimensions.x + x].intersections.y << ", "
                     << density_grid[z][y * dimensions.x + x].intersections.z << ")]";
         }
-        std::cout << std::endl;
+        CERR << std::endl;
       }
     }
   }

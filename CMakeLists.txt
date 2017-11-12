@@ -8,8 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 find_package(CUDA REQUIRED)
 find_package (Threads REQUIRED)
 
-set(CUDA_NVCC_FLAGS -Xcompiler -DCUDA_CODE
-    -Xcompiler -DCUDA_GENERATION -Xcompiler
+set(CUDA_NVCC_FLAGS_TMP -Xcompiler
     -D__CORRECT_ISO_CPP11_MATH_H_PROTO
         -D_MWAITXINTRIN_H_INCLUDED
         -D_FORCE_INLINES
@@ -75,7 +74,7 @@ set(SFML_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParties/SFML/lib/libsfml-sys
 include_directories(${SFML_INCLUDE_DIRS})
 
 # C++14 and extra flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++11 -O0 -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wextra -std=c++11 -O3 -DNDEBUG")
 
 # Sets library output directory
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)

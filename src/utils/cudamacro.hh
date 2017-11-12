@@ -1,5 +1,11 @@
 #pragma once
 
+#ifdef DEBUG
+#define CERR std::cerr
+#else
+#define CERR while(0) std::cerr
+#endif
+
 #ifdef CUDA_CODE
 
 #define cudaCheckError() {                                                     \

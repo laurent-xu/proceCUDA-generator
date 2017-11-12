@@ -131,7 +131,7 @@ void AsynchronousRendering::render_grids()
 
       // Draw window
       window->display();
-      std::cerr << "draw " << frame_idx++ << std::endl;
+      CERR << "draw " << frame_idx++ << std::endl;
     }
   }
 }

@@ -24,9 +24,7 @@ void AsynchronousGridMaker::make_grids()
     {
       std::unique_lock<std::mutex> lock(m);
       while(!*generation_position && *running)
-      {
         cv_generation.wait(lock);
-      }
       current_position = std::atomic_exchange(generation_position,
                                               current_position);
     }
@@ -35,7 +33,7 @@ void AsynchronousGridMaker::make_grids()
       continue;
     previous_position = *current_position;
 
-    std::cerr << "Compute" << std::endl;
+    CERR << "Compute" << std::endl;
 
     // TODO Anatole Compute the grids_info according to the camera position
     //       with the octree
@@ -67,7 +65,8 @@ void AsynchronousGridMaker::make_grids()
       // cache_lru.add(info, vertices_grids) TODO Anatole
       to_be_printed->push_back(vertices_grid);
     }
-    std::cerr << "Frame " << frame_idx++ << " is computed" << std::endl;
+    CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
     std::atomic_store(vertices, to_be_printed);
   }
+  CERR << "End of make grids" << std::endl;
 }

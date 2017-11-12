@@ -2,6 +2,7 @@
 // Created by leo on 8/14/16.
 //
 
+#include <utils/cudamacro.hh>
 #include "shader.hh"
 
 Shader::Shader(const GLchar *vertexSourcePath,
@@ -22,8 +23,8 @@ Shader::Shader(const GLchar *vertexSourcePath,
   glGetProgramiv(this->Program, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(this->Program, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-    << infoLog << std::endl;
+    CERR << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
+         << infoLog << std::endl;
   }
   glDeleteShader(vertex);
   glDeleteShader(fragment);
@@ -39,8 +40,8 @@ void Shader::compileShader(GLuint &shader, const GLchar *shaderCode,
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(shader, 512, NULL, infolog);
-    std::cout << "ERROR::PROGRAM::COMPILE::COMPILATION_FAILED\n"
-    << infolog << std::endl;
+    CERR << "ERROR::PROGRAM::COMPILE::COMPILATION_FAILED\n"
+         << infolog << std::endl;
   }
 }
 
