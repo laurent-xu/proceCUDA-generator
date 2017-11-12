@@ -18,11 +18,12 @@ namespace rendering {
       void initVAO();
 
     private:
-      point_t _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
-      void computeVBO(const HermitianGrid &hermitianGrid, float scale);
-      void _addVertex(point_t vertex, std::vector<GLfloat> &buffer_vect);
-      void addCube(const HermitianGrid &hermitianGrid, unsigned int &vbo_idx, float scale,
-                   point_t a, point_t b, point_t c, point_t d);
+      point_t _computeNormal(const point_t& p1, const point_t& p2,
+                             const point_t& p3);
+      void computeVBO(const HermitianGrid& hermitianGrid, float scale);
+      void VBO_kernel(const HermitianGrid& hermitianGrid, float scale,
+                      size_t x, size_t y, size_t z, size_t& vbo_idx);
+      void _addVertex(point_t vertex, std::vector<GLfloat>& buffer_vect);
 
     private:
       std::vector <GLfloat> _vertices;
