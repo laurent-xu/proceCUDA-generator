@@ -4,16 +4,14 @@
 void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();
-  size_t nb_voxels = 32.;
-  F3::vec3_t origin;
-  origin.x = int(position.x / nb_voxels) * nb_voxels;
-  origin.y = int(position.y / nb_voxels) * nb_voxels;
-  origin.z = int(position.z / nb_voxels) * nb_voxels;
+  GridInfo::vec3_t origin;
+  origin.x = position.x / nb_voxels;
+  origin.y = position.y / nb_voxels;
+  origin.z = position.z / nb_voxels;
   for (auto x: {-1, 0, 1})
     for (auto y: {-1, 0, 1})
       for (auto z: {-1, 0, 1})
-        grids_info.emplace_back(1., origin +
-                                F3::vec3_t(x, y, z) * double(nb_voxels),
+        grids_info.emplace_back(1., origin + GridInfo::vec3_t(x, y, z),
                                 nb_voxels);
 }
 

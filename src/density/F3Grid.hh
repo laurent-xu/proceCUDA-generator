@@ -28,7 +28,7 @@ struct F3
 struct GridInfo
 {
   using dist_t = double;
-  using vec3_t = glm::tvec3<dist_t>;
+  using vec3_t = glm::tvec3<int>;
   GridInfo(dist_t precision, vec3_t offset, size_t dimension)
     : precision(precision),
       offset(offset),
@@ -40,9 +40,9 @@ struct GridInfo
   vec3_t offset;
   size_t dimension;
 
-  BOTH_TARGET vec3_t to_position(size_t x, size_t y, size_t z) const
+  BOTH_TARGET F3::vec3_t to_position(size_t x, size_t y, size_t z) const
   {
-    return offset + vec3_t(x, y, z) * precision;
+    return F3::vec3_t(offset * int(dimension) + vec3_t(x, y, z)) * precision;
   }
 };
 
