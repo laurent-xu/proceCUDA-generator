@@ -15,10 +15,15 @@ bool AsynchronousRendering::update_position()
         *running = false;
         break;
       case sf::Event::KeyPressed:
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+        {
+          *running = false;
+          window->close();
+          break;
+        }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) ||
            sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
-          std::cerr << "here" << std::endl;
           camera.processKeyboard(Camera_Movement::FORWARD, deltaTime);
           moved = true;
         }
@@ -126,6 +131,7 @@ void AsynchronousRendering::render_grids()
 
       // Draw window
       window->display();
+      std::cerr << "draw " << frame_idx++ << std::endl;
     }
   }
 }

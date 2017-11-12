@@ -67,6 +67,11 @@ int main(int argc, char* argv[])
 
   auto grid_maker_thread = grid_maker.make_grids_in_thread();
   renderer.render_grids();
+  {
+    std::unique_lock<std::mutex> lock(m);
+    std::cerr << "notify end " << std::endl;
+    cv_generation.notify_one();
+  }
   grid_maker_thread.join();
 
   return 0;

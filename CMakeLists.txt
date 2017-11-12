@@ -15,7 +15,8 @@ set(CUDA_NVCC_FLAGS -Xcompiler -DCUDA_CODE
         -D_FORCE_INLINES
         -D__STRICT_ANSI__
     --compiler-bindir /usr/bin/g++-5
-    -Xcompiler -fPIC --expt-relaxed-constexpr)
+    -Xcompiler -fPIC --expt-relaxed-constexpr
+    -Wno-deprecated-gpu-targets)
 
 MESSAGE("glew not found, installing glew")
 execute_process(COMMAND git submodule update --init -- ThirdParties/glew

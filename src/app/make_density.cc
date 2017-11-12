@@ -18,18 +18,20 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 void AsynchronousGridMaker::make_grids()
 {
   size_t frame_idx = 0;
-  while (running)
+  while (*running)
   {
     std::shared_ptr<glm::vec3> current_position;
     {
       std::unique_lock<std::mutex> lock(m);
-      while(!*generation_position)
+      while(!*generation_position && *running)
+      {
         cv_generation.wait(lock);
+      }
       current_position = std::atomic_exchange(generation_position,
                                               current_position);
     }
 
-    if (previous_position == *current_position)
+    if (!current_position || previous_position == *current_position)
       continue;
     previous_position = *current_position;
 
