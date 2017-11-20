@@ -2,57 +2,71 @@
 #include <rendering/viewer/camera.hh>
 #include <rendering/vertices-grid.hpp>
 #include <app/generation_kernel.hh>
+#include <utils/glm.hh>
 #include <condition_variable>
 #include <thread>
+#include <memory>
+#include <vector>
 
 
 class AsynchronousGridMaker
 {
 public:
-  AsynchronousGridMaker(std::shared_ptr<glm::vec3>* generation_position,
-                        std::shared_ptr<bool> running,
-                        std::shared_ptr<std::vector<rendering::VerticesGrid>>* vertices,
-                        std::condition_variable& cv_generation,
-                        std::mutex& m,
-                        size_t nb_voxels)
-    : generation_position(generation_position),
-      running(running),
-      vertices(vertices),
-      cv_generation(cv_generation),
-      m(m),
-      nb_voxels(nb_voxels)
+  AsynchronousGridMaker(size_t nb_voxels, size_t nb_thread_x,
+                        size_t nb_thread_y, size_t nb_thread_z)
+    : nb_voxels(nb_voxels),
+      nb_thread_x(nb_thread_x),
+      nb_thread_y(nb_thread_y),
+      nb_thread_z(nb_thread_z)
   {
   }
 
 
   void make_octree(const glm::vec3& position);
 
-  void make_grids();
+  std::shared_ptr<std::vector<rendering::VerticesGrid>>
+  make_grid(const glm::vec3& position);
 
-  std::thread make_grids_in_thread()
+  void make_grids(std::shared_ptr<glm::vec3>* generation_position,
+                  bool* running,
+                  std::shared_ptr<std::vector<rendering::VerticesGrid>>*
+                    vertices,
+                  std::condition_variable& cv_generation,
+                  std::mutex& m);
+
+  std::thread make_grids_in_thread(std::shared_ptr<glm::vec3>*
+                                   generation_position,
+                                   std::shared_ptr<bool> running,
+                                   std::shared_ptr<std::vector<
+                                                   rendering::VerticesGrid>>*
+                                    vertices,
+                                   std::condition_variable& cv_generation,
+                                   std::mutex& m)
   {
-    return std::thread([&](){make_grids();});
+    return std::thread([&](){make_grids(generation_position, running.get(),
+                                        vertices, cv_generation, m);});
   }
 
 private:
-  std::shared_ptr<glm::vec3>* generation_position;
-  std::shared_ptr<bool> running;
-  std::shared_ptr<std::vector<rendering::VerticesGrid>>* vertices;
-  std::condition_variable& cv_generation;
-  std::mutex& m;
   size_t nb_voxels;
+  size_t nb_thread_x;
+  size_t nb_thread_y;
+  size_t nb_thread_z;
   std::vector<GridInfo> grids_info;
-  glm::vec3 previous_position;
 };
 
 #ifdef CUDA_GENERATION
-static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
+static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info,
+                                                         size_t nb_thread_x,
+                                                         size_t nb_thread_y,
+                                                         size_t nb_thread_z)
 {
   size_t dimension = info.dimension;
-  size_t thread_per_dim = 4;
-  size_t block_dim = (dimension + thread_per_dim - 1) / thread_per_dim;
-  dim3 Dg(block_dim, block_dim, block_dim);
-  dim3 Db(thread_per_dim, thread_per_dim, thread_per_dim);
+  size_t block_dim_x = (dimension + nb_thread_x - 1) / nb_thread_x;
+  size_t block_dim_y = (dimension + nb_thread_y - 1) / nb_thread_y;
+  size_t block_dim_z = (dimension + nb_thread_z - 1) / nb_thread_z;
+  dim3 Dg(block_dim_x, block_dim_y, block_dim_z);
+  dim3 Db(nb_thread_x, nb_thread_y, nb_thread_z);
 
   auto result = GridF3<true>::get_grid(info);
   result->hold();
@@ -63,7 +77,9 @@ static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info)
   return result;
 }
 #else
-static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info)
+static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
+                                                          size_t, size_t,
+                                                          size_t)
 {
   size_t dimension = info.dimension;
   auto result = GridF3<false>::get_grid(info);
@@ -79,9 +95,12 @@ static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info)
 #endif
 
 #ifdef CUDA_RENDERING
-static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info)
+static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info,
+                                                     size_t nb_thread_x,
+                                                     size_t nb_thread_y,
+                                                     size_t nb_thread_z)
 {
-  auto generated = make_density_grid_aux(info);
+  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y, nb_thread_z);
 #ifdef CUDA_GENERATION
   auto result = generated;
 #else
@@ -90,9 +109,13 @@ static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info)
   return result;
 }
 #else
-static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info)
+static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info,
+                                                      size_t nb_thread_x,
+                                                      size_t nb_thread_y,
+                                                      size_t nb_thread_z)
 {
-  auto generated = make_density_grid_aux(info);
+  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y,
+                                         nb_thread_z);
 #ifdef CUDA_GENERATION
   auto result = copy_to_host(generated);
 #else
@@ -103,4 +126,5 @@ static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info)
 #endif
 
 void make_grids(const Camera& camera, bool& running,
-                std::shared_ptr<std::vector<rendering::VerticesGrid>>* vertices);
+                std::shared_ptr<std::vector<rendering::VerticesGrid>>*
+                vertices);

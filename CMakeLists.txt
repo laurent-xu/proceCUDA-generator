@@ -13,7 +13,6 @@ set(CUDA_NVCC_FLAGS_TMP -Xcompiler
         -D_MWAITXINTRIN_H_INCLUDED
         -D_FORCE_INLINES
         -D__STRICT_ANSI__
-    --compiler-bindir /usr/bin/g++-5
     -Xcompiler -fPIC --expt-relaxed-constexpr
     -Wno-deprecated-gpu-targets)
 

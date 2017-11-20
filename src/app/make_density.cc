@@ -15,9 +15,55 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
                                 nb_voxels);
 }
 
-void AsynchronousGridMaker::make_grids()
+std::shared_ptr<std::vector<rendering::VerticesGrid>>
+AsynchronousGridMaker::make_grid(const glm::vec3& position)
+{
+  auto make_octree(position);
+  auto to_be_printed =
+    std::make_shared<std::vector<rendering::VerticesGrid>>();
+  static std::vector<GridInfo> generation_grids_info;
+
+  generation_grids_info.clear();
+  for (const auto& info: grids_info)
+  {
+    // TODO Anatole
+    // if (cache_lru.contains(info))
+    //    to_be_printed.push(cache_lru[info])
+    // else
+    generation_grids_info.push_back(info);
+  }
+
+  for (const auto& info: generation_grids_info)
+  {
+    // GridF3<DensityTarget>::grid_t where DensityTarget depends on the
+    // device used by the rendering
+    auto density_grid = make_density_grid(info, nb_thread_x, nb_thread_y,
+                                          nb_thread_z);
+
+    auto hermitian_grid = rendering::HermitianGrid(density_grid,
+                                                   rendering::point_t(density_grid->dim_size()),
+                                                   1);
+    // Below the scale is 0.2. This value can be tweaked for bigger/smaller map
+    auto vertices_grid = rendering::VerticesGrid(hermitian_grid, 0.2);
+    // cache_lru.add(info, vertices_grids) TODO Anatole
+    to_be_printed->push_back(vertices_grid);
+  }
+  return to_be_printed;
+}
+
+void
+AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
+                                  generation_position,
+                                  bool* running,
+                                  std::shared_ptr<std::vector<
+                                                  rendering::VerticesGrid>>*
+                                    vertices,
+                                  std::condition_variable& cv_generation,
+                                  std::mutex& m)
 {
   size_t frame_idx = 0;
+  glm::vec3 previous_position;
+
   while (*running)
   {
     std::shared_ptr<glm::vec3> current_position;
@@ -38,33 +84,8 @@ void AsynchronousGridMaker::make_grids()
     // TODO Anatole Compute the grids_info according to the camera position
     //       with the octree
     make_octree(*current_position);
-    auto to_be_printed =
-      std::make_shared<std::vector<rendering::VerticesGrid>>();
-    std::vector<GridInfo> generation_grids_info;
+    auto to_be_printed = make_grid(previous_position);
 
-    for (const auto& info: grids_info)
-    {
-      // TODO Anatole
-      // if (cache_lru.contains(info))
-      //    to_be_printed.push(cache_lru[info])
-      // else
-      generation_grids_info.push_back(info);
-    }
-
-    for (const auto& info: grids_info)
-    {
-      // GridF3<DensityTarget>::grid_t where DensityTarget depends on the
-      // device used by the rendering
-      auto density_grid = make_density_grid(info);
-
-      auto hermitian_grid = rendering::HermitianGrid(density_grid,
-                                                     rendering::point_t(density_grid->dim_size()),
-                                                     1);
-      // Bellow the scale is 0.2. This value can be tweaked for bigger/smaller map
-      auto vertices_grid = rendering::VerticesGrid(hermitian_grid, 0.2);
-      // cache_lru.add(info, vertices_grids) TODO Anatole
-      to_be_printed->push_back(vertices_grid);
-    }
     CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
     std::atomic_store(vertices, to_be_printed);
   }
