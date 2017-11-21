@@ -4,24 +4,29 @@
 #include <app/make_density.hh>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <cuda_profiler_api.h>
 #include <iostream>
 #include <condition_variable>
 #include <thread>
-#include <cuda_profiler_api.h>
+#include <random>
+#include <cmath>
 
 void print_help(const std::string& bin)
 {
   std::cerr << "usage: " << bin << " grid_dim nb_thread_x nb_thread_y "
                                    "nb_thread_z is_real_time "
-                                   "x1 y1 z1 [x2 y2 z2...] " << std::endl;
+                                   "[x y z | nb_grids rand_min rand_max]"
+                         << std::endl;
   std::cerr << "  grid_dim: the length of a density grid" << std::endl;
   std::cerr << "  nb_thread_[x|y|z]: the number of threads in a block. "
                "This has no consequences in CPU mode." << std::endl;
   std::cerr << "  is_real_time: It can be either true or false." << std::endl;
-  std::cerr << "  x1 y1 z1: In real time mode this is the initial position of "
+  std::cerr << "  x y z: In real time mode this is the initial position of "
                "the camera" << std::endl;
-  std::cerr << "  x1 y1 z1 [x2 y2 z2...] is the list of the positions of the "
-               "camera" << std::endl;
+  std::cerr << "  nb_grids: Not in real time mode this is the number of camera "
+               "positions to simulate" << std::endl;
+  std::cerr << "  rand_min rand_max: Not in real mode, these values are the "
+               "bounds of the position of the camera" << std::endl;
 
   std::exit(1);
 }
@@ -35,6 +40,9 @@ int main(int argc, char* argv[])
   size_t nb_thread_x = 0;
   size_t nb_thread_y = 0;
   size_t nb_thread_z = 0;
+
+  std::random_device rd;
+  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 
   if (argc >= 6)
   {
@@ -59,16 +67,22 @@ int main(int argc, char* argv[])
       }
       else
       {
-        if (argc % 3 != 0)
+        if (argc != 9)
           print_help(argv[0]);
         else
-          for (int last_parsed = 6; last_parsed < argc; last_parsed += 3)
+        {
+          auto nb_positions = std::stoul(argv[6]);
+          double min = std::stod(argv[7]);
+          double max = std::stod(argv[8]);
+          std::uniform_real_distribution<> dis(min, max);
+          for (size_t j = 0; j < nb_positions; ++j)
           {
             auto tmp_position = glm::vec3();
             for (size_t i = 0; i < 3; ++i)
-              tmp_position[i] = std::stod(argv[i + last_parsed]);
+              tmp_position[i] = dis(gen);
             camera_positions.push_back(tmp_position);
           }
+        }
       }
     }
     catch (std::exception e)
