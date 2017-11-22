@@ -13,6 +13,7 @@ set(CUDA_NVCC_FLAGS_TMP -Xcompiler
         -D_MWAITXINTRIN_H_INCLUDED
         -D_FORCE_INLINES
         -D__STRICT_ANSI__
+    -ccbin ${CMAKE_CXX_COMPILER}
     -Xcompiler -fPIC --expt-relaxed-constexpr
     -Wno-deprecated-gpu-targets)
 
