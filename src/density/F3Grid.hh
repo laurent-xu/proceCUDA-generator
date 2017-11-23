@@ -51,7 +51,8 @@ class GridF3
 {
 public:
   using dist_t = F3::val_t;
-  using vec3_t = GridInfo::vec3_t;
+  using off_vec3_t = GridInfo::vec3_t;
+  using vec3_t = F3::vec3_t;
   using grid_t = std::shared_ptr<GridF3<DeviceImplementation>>;
 
   template <typename... Args>
@@ -102,7 +103,7 @@ private:
   friend class GridF3<false>;
 
   HOST_TARGET GridF3(const dist_t& precision,
-                     const vec3_t& offset,
+                     const off_vec3_t& offset,
                      size_t dimension)
     : info_(precision, offset, dimension)
   {
