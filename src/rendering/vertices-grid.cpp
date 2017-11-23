@@ -146,6 +146,7 @@ namespace rendering {
   }
 
   void VerticesGrid::draw() {
+    std::cout << _indices.size() << std::endl;
     glBindVertexArray(_VAO); {
       glDrawElements(GL_TRIANGLES, (GLsizei) _indices.size(), GL_UNSIGNED_INT, 0);
     } glBindVertexArray(0);

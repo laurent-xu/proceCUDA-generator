@@ -1,12 +1,15 @@
 #include <app/rendering.hh>
 #include <mutex>
 #include <thread>
+#include <density/Sphere.hh>
 
 bool AsynchronousRendering::update_position()
 {
   bool moved = false;
   sf::Event event;
-  auto deltaTime = clock.getElapsedTime().asSeconds();
+  auto deltaTime = clock.getElapsedTime().asSeconds() * 1000;
+  deltaTime = 1.0f / 60.0f;
+  // CERR << deltaTime << std::endl;
   while (window->pollEvent(event))
   {
     switch (event.type)
@@ -91,15 +94,26 @@ void AsynchronousRendering::init_frame()
               camera.getPosition().z);
 }
 
+using data_t = rendering::data_t;
+using point_t = rendering::point_t;
+
 void AsynchronousRendering::render_grids()
 {
   // Note that we're translating the scene in the reverse direction of
   // where we want to move
-  view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
   projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f,
                                              0.1f, 1000.0f);
-  Shader shader("../resources/shaders/vertex_shader.glsl",
+  shader = Shader("../resources/shaders/vertex_shader.glsl",
                 "../resources/shaders/fragment_shader.glsl");
+
+  glClearColor(0.1, 0.1, 0.1, 1.0);
+
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(20));
+  auto dimension = sphere->dim_size();
+  rendering::HermitianGrid
+          hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
+  rendering::VerticesGrid verticesGrid(hermitianGrid, 0.05);
+
   std::shared_ptr<std::vector<rendering::VerticesGrid>> to_be_printed;
   size_t frame_idx = 0;
   while (*running)
@@ -126,8 +140,11 @@ void AsynchronousRendering::render_grids()
 
     if (need_new_frame && to_be_printed)
     {
+      init_frame();
       for (auto& e : *to_be_printed)
         e.draw();
+      CERR << "last version" << std::endl;
+      //verticesGrid.draw();
 
       // Draw window
       window->display();

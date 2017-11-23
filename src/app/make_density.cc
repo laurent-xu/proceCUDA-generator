@@ -11,8 +11,15 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
   for (auto x: {-1, 0, 1})
     for (auto y: {-1, 0, 1})
       for (auto z: {-1, 0, 1})
+      {
         grids_info.emplace_back(1., origin + GridInfo::vec3_t(x, y, z),
                                 nb_voxels);
+	CERR << "POSITION CAMERA " << position.x << " " << position.y << " " << position.z << std::endl;
+	CERR << "ORIGIN GEN " << origin.x + x << " " << origin.y + y << " " << origin.z + z << std::endl;
+	CERR << "nbvox " << nb_voxels << std::endl;
+	auto test = grids_info.back().to_position(0, 0, 0);
+	CERR << "position world of a cell " << test.x << " " << test.y << " " << test.z << std::endl;
+      }
 }
 
 std::shared_ptr<std::vector<rendering::VerticesGrid>>
@@ -39,7 +46,6 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
     // device used by the rendering
     auto density_grid = make_density_grid(info, nb_thread_x, nb_thread_y,
                                           nb_thread_z);
-
     if (render)
     {
       auto hermitian_grid = rendering::HermitianGrid(density_grid,
@@ -88,6 +94,7 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
     //       with the octree
     make_octree(*current_position);
     auto to_be_printed = make_grid(previous_position, true);
+    make_octree(*current_position);
 
     CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
     std::atomic_store(vertices, to_be_printed);

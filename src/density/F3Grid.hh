@@ -73,7 +73,7 @@ public:
 
   BOTH_TARGET size_t dim_size() const { return info_.dimension; }
 
-  DEVICE_TARGET F3& at(size_t x, size_t y, size_t z)
+  BOTH_TARGET F3& at(size_t x, size_t y, size_t z)
   {
     return points_[x * info_.dimension * info_.dimension +
                    y * info_.dimension + z];

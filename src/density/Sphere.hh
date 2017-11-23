@@ -8,7 +8,7 @@ make_sphere_example(const F3::vec3_t& grid_origin,
                     const F3::vec3_t& center,
                     const F3::dist_t radius)
 {
-  size_t dimension = 32;
+  size_t dimension = 32; 
   auto result = GridF3<false>::get_grid(precision, grid_origin, dimension);
   for (size_t x = 0; x < dimension; ++x)
     for (size_t y = 0; y < dimension; ++y)
