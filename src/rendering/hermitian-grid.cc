@@ -26,6 +26,7 @@ namespace rendering {
                                point_t dimensions, float nodeSize)
       : _dimensions(dimensions), _nodeSize(nodeSize)
   {
+    CERR << dimensions.x << " " << dimensions.y << " " << dimensions.z << std::endl;
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)

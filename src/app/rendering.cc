@@ -8,7 +8,7 @@ bool AsynchronousRendering::update_position()
   bool moved = false;
   sf::Event event;
   auto deltaTime = clock.getElapsedTime().asSeconds() * 1000;
-  deltaTime = 1.0f / 60.0f;
+  deltaTime = 5.0f / 60.0f;
   // CERR << deltaTime << std::endl;
   while (window->pollEvent(event))
   {
@@ -112,7 +112,7 @@ void AsynchronousRendering::render_grids()
   auto dimension = sphere->dim_size();
   rendering::HermitianGrid
           hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
-  rendering::VerticesGrid verticesGrid(hermitianGrid, 0.05);
+  rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
 
   std::shared_ptr<std::vector<rendering::VerticesGrid>> to_be_printed;
   size_t frame_idx = 0;

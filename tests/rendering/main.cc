@@ -34,7 +34,7 @@ void testCube() {
   auto dimension = sphere->dim_size();
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
-  rendering::VerticesGrid verticesGrid(hermitianGrid, 0.05);
+  rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
 
   glm::mat4 model;
   glm::mat4 view;
@@ -57,6 +57,7 @@ void testCube() {
   sf::Vector2f mousePosition(sf::Mouse::getPosition());
   glm::vec3 lightPosBase = lightPos;
   while (running) {
+    CERR << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     sf::Event event;
     while (window->pollEvent(event))

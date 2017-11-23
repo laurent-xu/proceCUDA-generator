@@ -23,6 +23,7 @@ namespace rendering {
   }
 
   void VerticesGrid::computeVBO(const HermitianGrid &hermitianGrid, float scale) {
+    CERR << "SCALE" << scale << std::endl;
     unsigned int vbo_idx = 0;
     // Indices of previous vertices to avoid duplication.
     for (int z = 0; z < hermitianGrid.getDimensions().z; z++) {
@@ -116,6 +117,7 @@ namespace rendering {
   }
 
   void VerticesGrid::_addVertex(point_t vertex, std::vector<GLfloat> &buffer_vect) {
+    // CERR << vertex.x << " " << vertex.y << " " << vertex.z << std::endl;
     buffer_vect.push_back(vertex.x);
     buffer_vect.push_back(vertex.y);
     buffer_vect.push_back(vertex.z);
@@ -146,7 +148,6 @@ namespace rendering {
   }
 
   void VerticesGrid::draw() {
-    std::cout << _indices.size() << std::endl;
     glBindVertexArray(_VAO); {
       glDrawElements(GL_TRIANGLES, (GLsizei) _indices.size(), GL_UNSIGNED_INT, 0);
     } glBindVertexArray(0);

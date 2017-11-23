@@ -22,6 +22,5 @@ void main() {
     lowp vec3 specLight = specular_strenght * specConst * lightColor;
     lowp float diffLight = max(dot(nNormal, nFragPos), 0.0f);
     lowp vec3 light = diffLight + ambientLight + specLight;
-    // color = vec4(light * objectColor, 1.0f);
-    color = vec4(1.0, 0.0, 0.0, 1.0f);
+    color = vec4(light * objectColor, 1.0f);
 }
