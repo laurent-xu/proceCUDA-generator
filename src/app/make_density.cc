@@ -46,6 +46,19 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
     // device used by the rendering
     auto density_grid = make_density_grid(info, nb_thread_x, nb_thread_y,
                                           nb_thread_z);
+
+    auto dimension = density_grid->dim_size();
+    CERR << "MY INFO" << std::endl;
+    CERR << "Info offset " << info.offset.x << " " << info.offset.y
+         << " " << info.offset.z << std::endl;
+    CERR << "dimension " << dimension << std::endl;
+    auto pos0 = density_grid->to_position(0, 0, 0);
+    CERR << "world position of 0, 0, 0 => " << pos0.x << " " << pos0.y
+         << " " << pos0.z << std::endl;
+    auto pos1 = density_grid->to_position(dimension - 1, dimension - 1, dimension - 1);
+    CERR << "world position of last => " << pos1.x << " " << pos1.y
+         << " " << pos1.z << std::endl;
+
     if (render)
     {
       auto hermitian_grid = rendering::HermitianGrid(density_grid,

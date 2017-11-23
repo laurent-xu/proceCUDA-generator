@@ -3,7 +3,7 @@
 #include "../utils/glm.hh"
 
 static inline GridF3<false>::grid_t
-make_sphere_example(const F3::vec3_t& grid_origin,
+make_sphere_example(const GridInfo::vec3_t& grid_origin,
                     const F3::dist_t precision,
                     const F3::vec3_t& center,
                     const F3::dist_t radius)

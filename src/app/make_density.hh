@@ -125,7 +125,3 @@ static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info,
   return result;
 }
 #endif
-
-void make_grids(const Camera& camera, bool& running,
-                std::shared_ptr<std::vector<rendering::VerticesGrid>>*
-                vertices);
