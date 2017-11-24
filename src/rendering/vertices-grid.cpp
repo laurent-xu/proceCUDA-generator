@@ -10,7 +10,6 @@ namespace rendering {
 
   VerticesGrid::VerticesGrid(const HermitianGrid &hermitianGrid, float scale) {
     computeVBO(hermitianGrid, scale);
-    initVAO();
   }
 
   point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2, const point_t &p3) {
@@ -124,6 +123,9 @@ namespace rendering {
   }
 
   void VerticesGrid::initVAO() {
+    if (is_inited_)
+      return;
+    is_inited_ = true;
     auto &data_vect = _data;
     GLfloat *data = &data_vect[0];
 

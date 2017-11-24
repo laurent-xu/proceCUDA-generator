@@ -63,13 +63,13 @@ public:
 
   HOST_TARGET ~GridF3()
   {
-    if (!hold_)
+    if (DeviceImplementation)
     {
-      if (DeviceImplementation)
+      if (!hold_)
         HOST_FREE(points_);
-      else
-        free(points_);
     }
+    else
+      free(points_);
   }
 
   BOTH_TARGET size_t dim_size() const { return info_.dimension; }

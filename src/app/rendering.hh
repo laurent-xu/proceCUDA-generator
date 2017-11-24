@@ -18,7 +18,7 @@ public:
   AsynchronousRendering(const std::shared_ptr<sf::Window>& window,
                         std::shared_ptr<glm::vec3>* generation_position,
                         std::shared_ptr<bool> running,
-                        std::shared_ptr<std::vector<rendering::VerticesGrid>>* vertices,
+                        std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>* vertices,
                         std::condition_variable& cv_generation,
                         std::mutex& m)
     : window(window),
@@ -45,8 +45,8 @@ private:
   Camera camera;
   std::shared_ptr<glm::vec3>* generation_position;
   std::shared_ptr<bool> running;
-  std::shared_ptr<std::vector<rendering::VerticesGrid>>* vertices;
-  std::shared_ptr<std::vector<rendering::VerticesGrid>> to_be_printed;
+  std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>* vertices;
+  std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> to_be_printed;
   std::condition_variable& cv_generation;
   std::mutex& m;
   sf::Clock clock;

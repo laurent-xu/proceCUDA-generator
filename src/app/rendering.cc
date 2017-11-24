@@ -1,4 +1,5 @@
 #include <app/rendering.hh>
+#include <app/make_density.hh>
 #include <mutex>
 #include <thread>
 #include <density/Sphere.hh>
@@ -108,13 +109,6 @@ void AsynchronousRendering::render_grids()
 
   glClearColor(0.1, 0.1, 0.1, 1.0);
 
-  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(20));
-  auto dimension = sphere->dim_size();
-  rendering::HermitianGrid
-          hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
-  rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
-
-  std::shared_ptr<std::vector<rendering::VerticesGrid>> to_be_printed;
   size_t frame_idx = 0;
   while (*running)
   {
@@ -130,7 +124,7 @@ void AsynchronousRendering::render_grids()
     }
 
     // If new vertices have been computed, we display them
-    std::shared_ptr<std::vector<rendering::VerticesGrid>> tmp;
+    std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> tmp;
     tmp = std::atomic_exchange(vertices, tmp);
     if (tmp)
     {
@@ -141,10 +135,12 @@ void AsynchronousRendering::render_grids()
     if (need_new_frame && to_be_printed)
     {
       init_frame();
-      for (auto& e : *to_be_printed)
-        e.draw();
-      CERR << "last version" << std::endl;
-      //verticesGrid.draw();
+      //auto my_grids = grid_maker.make_grid(current_position, true);
+      for (auto e : *to_be_printed)
+      {
+        e->initVAO();
+        e->draw();
+      }
 
       // Draw window
       window->display();

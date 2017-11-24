@@ -24,12 +24,12 @@ public:
 
   void make_octree(const glm::vec3& position);
 
-  std::shared_ptr<std::vector<rendering::VerticesGrid>>
+  std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
   make_grid(const glm::vec3& position, bool render = false);
 
   void make_grids(std::shared_ptr<glm::vec3>* generation_position,
                   bool* running,
-                  std::shared_ptr<std::vector<rendering::VerticesGrid>>*
+                  std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>*
                     vertices,
                   std::condition_variable& cv_generation,
                   std::mutex& m);
@@ -38,7 +38,7 @@ public:
                                    generation_position,
                                    std::shared_ptr<bool> running,
                                    std::shared_ptr<std::vector<
-                                                   rendering::VerticesGrid>>*
+                                                   std::shared_ptr<rendering::VerticesGrid>>>*
                                     vertices,
                                    std::condition_variable& cv_generation,
                                    std::mutex& m)

@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
     auto generation_position = std::make_shared<glm::vec3>(camera_position);
     auto running = std::make_shared<bool>(true);
-    std::shared_ptr<std::vector<rendering::VerticesGrid>> vertices;
+    std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> vertices;
     std::condition_variable cv_generation;
     std::mutex m;
 

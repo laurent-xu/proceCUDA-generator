@@ -76,7 +76,6 @@ ParsingStringStream::ParsingStringStream(std::string str)
         lexemes.emplace_back(p.first, lex);
         str = m.suffix().str();
         found = true;
-        std::cout << "Found " << token_to_string(lexemes.back()) << std::endl;
         break;
       }
     }

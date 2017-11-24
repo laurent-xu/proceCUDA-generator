@@ -15,6 +15,7 @@ namespace rendering {
 
     public:
       void draw();
+      void initVAO();
 
     private:
       point_t _computeNormal(const point_t &p1, const point_t &p2, const point_t &p3);
@@ -22,7 +23,6 @@ namespace rendering {
       void _addVertex(point_t vertex, std::vector<GLfloat> &buffer_vect);
       void addCube(const HermitianGrid &hermitianGrid, unsigned int &vbo_idx, float scale,
                    point_t a, point_t b, point_t c, point_t d);
-      void initVAO();
 
     private:
       std::vector <GLfloat> _vertices;
@@ -32,6 +32,7 @@ namespace rendering {
       GLuint _VAO;
       GLuint _VBO;
       GLuint _EBO;
+      bool is_inited_ = false;
 
     public:
       const std::vector <GLfloat> &getVertices() const { return _vertices; }
