@@ -1,0 +1,3 @@
+spatialize(30 30 30 100 30 150
+           multiply(perlin(30 6)
+                    constant(35)))

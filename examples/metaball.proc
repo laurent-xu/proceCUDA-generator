@@ -1,6 +1,6 @@
 add(
-  sphere(15 15 15 10)
-  sphere(18 18 15 10)
-  sphere(21 21 15 10)
+  clamp(-30 0 sphere(15 15 15 10))
+  clamp(-30 0 sphere(21 15 15 10))
+  clamp(-30 0 sphere(27 19 15 10))
   constant(2)
 )

@@ -1,7 +1,7 @@
 add(spatialize(300 30 30 100 -50 150
-             multiply(polynom(perlin(4 2) 0 1.5 2)
-                      perlin(2 6)
-                      constant(-1))
+               multiply(polynom(perlin(40 2) 0 1.5 2)
+                        perlin(60 6)
+                        constant(30))
     )
-    multiply(clamp(-10 10 sphere(30 30 30 100)) constant(-1))
+    multiply(clamp(-100 0 sphere(230 30 30 100)) constant(-1))
 )
