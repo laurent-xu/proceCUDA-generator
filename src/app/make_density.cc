@@ -1,14 +1,22 @@
 #include <app/make_density.hh>
 #include <app/generation_kernel.hh>
 
+// This function must not return grids that overlap, it should return at least
+// the grid containing the camera with the lowest possible precision, denoted
+// initial_precision
 void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();
   // TODO Anatole below
   GridInfo::vec3_t origin;
-  origin.x = position.x / nb_voxels;
-  origin.y = position.y / nb_voxels;
-  origin.z = position.z / nb_voxels;
+  double initial_precision = 1.;
+
+  // The next three lines give the offset of the grid containing the camera with
+  // the given precision.
+  origin.x = position.x / (nb_voxels * initial_precision);
+  origin.y = position.y / (nb_voxels * initial_precision);
+  origin.z = position.z / (nb_voxels * initial_precision);
+
   for (auto x = -2; x < 2; ++x)
     for (auto y = -2; y < 2; ++y)
       for (auto z = -2; z < 2; ++z)
