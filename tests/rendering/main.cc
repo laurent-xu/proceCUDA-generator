@@ -87,7 +87,6 @@ void testCube() {
   sf::Vector2f mousePosition(sf::Mouse::getPosition());
   glm::vec3 lightPosBase = lightPos;
   while (running) {
-    CERR << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     sf::Event event;
     while (window->pollEvent(event))

@@ -24,6 +24,7 @@ namespace rendering {
       void _computeIntersections();
       data_t _computeIntersectionOffset(data_t a, data_t b);
       void _computeContouringVertices();
+      std::vector<> _getIntersectionsPositions();
       point_t _computeVerticeForNode(int x, int y, int z);
       void _registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
                                            const std::vector<data_t> &N, const node_t &node,

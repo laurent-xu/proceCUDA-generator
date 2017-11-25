@@ -83,16 +83,14 @@ namespace rendering {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
-          auto &node = _grid[z][y * _dimensions.x + x];
-          /*
-          if (node.value == 0)
+          if (pointContainsFeature(x, y, z))
             _computeVerticeForNode(x, y, z); // TODO: dual contouring
-          */
         }
   }
 
   point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
+    /*
     data_t n[] = {node.gradient.x, node.gradient.y, node.gradient.z};
     std::vector<data_t> N;
     N.assign(n, n + 3);
@@ -108,12 +106,13 @@ namespace rendering {
     QRDecomposition qrd(Ab, (int) (Ab.size() / 4), 4);
     auto QAb = qrd.getProcessedMatrix();
     auto xA = qrd.extractAa();
-    utils::nmMatrix::print(xA, 3, 3, 12);
+    // utils::nmMatrix::print(xA, 3, 3, 12);
     auto xb = qrd.extractBb();
-    utils::nmMatrix::print(xb, 3, 1, 12);
+    // utils::nmMatrix::print(xb, 3, 1, 12);
     auto r = qrd.getR();
-    CERR << r << std::endl;
+    // CERR << r << std::endl;
     return point_t(0, 0, 0);
+    */
   }
 
 
