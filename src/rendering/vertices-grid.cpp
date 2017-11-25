@@ -11,7 +11,9 @@ namespace rendering
 VerticesGrid::VerticesGrid(const HermitianGrid &hermitianGrid, float scale)
 {
   computeVBO(hermitianGrid, scale);
-  initVAO();
+  glGenBuffers(1, &_EBO);
+  glGenVertexArrays(1, &_VAO);
+  glGenBuffers(1, &_VBO);
 }
 
 point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2,
@@ -113,9 +115,6 @@ void VerticesGrid::initVAO()
   auto &indices_vect = _indices;
   GLuint *indices = &indices_vect[0];
 
-  glGenBuffers(1, &_EBO);
-  glGenVertexArrays(1, &_VAO);
-  glGenBuffers(1, &_VBO);
   glBindVertexArray(_VAO);
   {
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);

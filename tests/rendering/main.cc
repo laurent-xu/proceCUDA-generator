@@ -35,6 +35,7 @@ void testCube() {
   rendering::HermitianGrid
       hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
   rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
+  verticesGrid.initVAO();
 
   std::vector<GLfloat> v_int;
   auto &grid = hermitianGrid.getGrid();
