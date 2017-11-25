@@ -62,20 +62,21 @@ namespace rendering {
           auto &node = _grid[z][y * _dimensions.x + x];
           auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
           // TODO: Value = 0 ?
+          node.intersections = node.min;
           if (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
-            node.intersections.x = node.min.x + _computeIntersectionOffset(
+            node.intersections.x += _computeIntersectionOffset(
                 densityNode.value, _densityGrid[z][y * _dimensions.x + x + 1].value);
           if (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
-            node.intersections.y = node.min.y + _computeIntersectionOffset(
+            node.intersections.y += _computeIntersectionOffset(
                 densityNode.value, _densityGrid[z][(y + 1) * _dimensions.x + x].value);
           if (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0)
-            node.intersections.y = node.min.z + _computeIntersectionOffset(
+            node.intersections.z += _computeIntersectionOffset(
                 densityNode.value, _densityGrid[z + 1][y * _dimensions.x + x].value);
         }
   }
 
   data_t HermitianGrid::_computeIntersectionOffset(data_t a, data_t b) {
-    return -a / b - a;
+    return -a / (b - a);
   }
 
   void HermitianGrid::_computeContouringVertices() {
@@ -185,6 +186,7 @@ namespace rendering {
       CERR << "-- z = " << z << std::endl;
       for (int y = 0; y < dimensions.y; y++) {
         for (int x = 0; x < dimensions.x; x++) {
+          auto &g = density_grid[z][y * dimensions.x + x];
           CERR << std::right << std::setw(10)
                     << "[" << density_grid[z][y * dimensions.x + x].value << ", "
                     << "(" << density_grid[z][y * dimensions.x + x].intersections.x << ", "

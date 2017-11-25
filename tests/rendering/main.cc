@@ -36,6 +36,35 @@ void testCube() {
       hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
   rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
 
+  std::vector<GLfloat> v_int;
+  auto &grid = hermitianGrid.getGrid();
+  auto dim = hermitianGrid.getDimensions();
+  for (int k = 0; k < dim.z; k++)
+    for (int y = 0; y < dim.y; y++)
+      for (int x = 0; x < dim.x; x++) {
+        auto &node = grid[k][y * dim.x + x];
+        if (node.intersections.x != node.min.x
+            || node.intersections.y != node.min.y
+            || node.intersections.z != node.min.z) {
+          v_int.push_back(node.intersections.x);
+          v_int.push_back(node.intersections.y);
+          v_int.push_back(node.intersections.z);
+        }
+      }
+  GLfloat *ints = &(v_int[0]);
+  auto ints_size = static_cast<GLuint>(v_int.size());
+  GLuint VAO;
+  GLuint VBO;
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(1, &VBO);
+  glBindVertexArray(VAO); {
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, ints_size * sizeof (GLfloat), ints, GL_STATIC_DRAW);
+    // vertices
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *) (0));
+    glEnableVertexAttribArray(0);
+  } glBindVertexArray(0);
+
   glm::mat4 model;
   glm::mat4 view;
   glm::vec3 lightPos(-4.0f, -13.0f, 9.0f);
@@ -87,6 +116,9 @@ void testCube() {
                 camera.getPosition().z);
 
     verticesGrid.draw();
+    glBindVertexArray(VAO); {
+      glDrawArrays(GL_POINTS, 0, (GLsizei) ints_size);
+    } glBindVertexArray(0);
 
     window->display();
   }
@@ -220,11 +252,21 @@ void testHermiteanComputation() {
   rendering::HermitianGrid::printHermitianGrid(g.getGrid(), g.getDimensions());
 }
 
+void testDualContouring() {
+  auto sphere = make_sphere_example(F3::vec3_t(0, 0, 0), F3::dist_t(1), F3::vec3_t(16, 16, 16), F3::dist_t(10));
+  auto dimension = sphere->dim_size();
+  rendering::HermitianGrid
+          hermitianGrid(sphere, point_t(dimension, dimension, dimension), 1);
+  rendering::VerticesGrid verticesGrid(hermitianGrid, 1);
+  std::vector<GLfloat> vertices;
+  // hermitianGrid.printHermitianGrid(hermitianGrid.getGrid(), hermitianGrid.getDimensions());
+}
+
 int main() {
   //testMatrixNM();
   //testQRDecomposition();
   //testHermiteanComputation();
-  //testSphere();
   testCube();
+  //testDualContouring();
   return 0;
 }
