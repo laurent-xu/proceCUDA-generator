@@ -73,6 +73,7 @@ namespace rendering {
     point_t gradient;
     point_t min;
     point_t vertex_pos;
+    point_t normal;
     point_t intersections;
   };
 

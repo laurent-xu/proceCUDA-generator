@@ -46,7 +46,8 @@ void testCube() {
         auto &node = grid[k][y * dim.x + x];
         if (node.intersections.x != node.min.x
             || node.intersections.y != node.min.y
-            || node.intersections.z != node.min.z) {
+            || node.intersections.z != node.min.z)
+        {
           v_int.push_back(node.intersections.x);
           v_int.push_back(node.intersections.y);
           v_int.push_back(node.intersections.z);
@@ -116,10 +117,11 @@ void testCube() {
                 camera.getPosition().z);
 
     verticesGrid.draw();
+    /*
     glBindVertexArray(VAO); {
       glDrawArrays(GL_POINTS, 0, (GLsizei) ints_size);
     } glBindVertexArray(0);
-
+    */
     window->display();
   }
   delete window;

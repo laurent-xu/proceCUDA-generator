@@ -20,11 +20,11 @@ namespace rendering {
       HermitianGrid(const GridF3<false>::grid_t& gridF3, point_t dimensions, float nodeSize);
 
     private:
-      void _initSurfaceNodes();
+      void _initSurfaceNodes(const GridF3<false>::grid_t &gridF3);
       void _computeIntersections();
       data_t _computeIntersectionOffset(data_t a, data_t b);
       void _computeContouringVertices();
-      std::vector<> _getIntersectionsPositions();
+      void computeVertexInfo(int x, int y, int z);
       point_t _computeVerticeForNode(int x, int y, int z);
       void _registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
                                            const std::vector<data_t> &N, const node_t &node,
@@ -38,7 +38,6 @@ namespace rendering {
       const node_t &getValueAt(int x, int y, int z) const { return _grid[z][y * _dimensions.x + x]; }
       const node_t &getValueAt(point_t p) const { return _grid[p.z][p.y * _dimensions.x + p.x]; }
       point_t getDimensions() const { return _dimensions; }
-      void computeVBOIndices();
 
     public:
       static void printDensityGrid(const std::vector<std::vector<node_t>> &density_grid, point_t dimensions);

@@ -11,9 +11,7 @@ namespace rendering
 VerticesGrid::VerticesGrid(const HermitianGrid &hermitianGrid, float scale)
 {
   computeVBO(hermitianGrid, scale);
-  glGenBuffers(1, &_EBO);
-  glGenVertexArrays(1, &_VAO);
-  glGenBuffers(1, &_VBO);
+  // initVAO();
 }
 
 point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2,
@@ -33,11 +31,10 @@ void VerticesGrid::VBO_kernel(const HermitianGrid &hermitianGrid, float scale,
   auto &node = hermitianGrid.getValueAt(x, y, z);
   auto dimensions = hermitianGrid.getDimensions();
 
-  if (hermitianGrid.pointContainsFeature(x, y, z))
+  if (hermitianGrid.pointContainsFeature(x, y, z)) {
     for (auto var_x: {0, 1})
       for (auto var_y: {0, 1})
-        for (auto var_z: {0, 1})
-        {
+        for (auto var_z: {0, 1}) {
           auto new_x = var_x + x;
           auto new_y = var_y + y;
           auto new_z = var_z + z;
@@ -52,31 +49,29 @@ void VerticesGrid::VBO_kernel(const HermitianGrid &hermitianGrid, float scale,
             continue;
           if (hermitianGrid.pointContainsFeature(x1, y1, z1) &&
               hermitianGrid.pointContainsFeature(x2, y2, z2) &&
-              hermitianGrid.pointContainsFeature(new_x, new_y, new_z))
-          {
+              hermitianGrid.pointContainsFeature(new_x, new_y, new_z)) {
 
             auto point1 =
-              hermitianGrid.getValueAt(x, y, z).vertex_pos.scale(scale);
+                    hermitianGrid.getValueAt(x, y, z);
             auto point2 =
-              hermitianGrid.getValueAt(x1, y1, z1).vertex_pos.scale(scale);
+                    hermitianGrid.getValueAt(x1, y1, z1);
             auto point3 =
-              hermitianGrid.getValueAt(new_x, new_y,
-                                       new_z).vertex_pos.scale(scale);
+                    hermitianGrid.getValueAt(new_x, new_y,
+                                             new_z);
             auto point4 =
-              hermitianGrid.getValueAt(x2, y2, z2).vertex_pos.scale(scale);
+                    hermitianGrid.getValueAt(x2, y2, z2);
 
-            auto normal = _computeNormal(point1, point2, point3);
-            normal = normal.scale(1 / normal.norm());
-            for (auto p: {point1, point2, point3, point4})
-            {
-              _addVertex(normal, _normals);
-              _addVertex(p, _vertices);
+            // auto normal = _computeNormal(point1, point2, point3);
+            for (auto p: {point1, point2, point3, point4}) {
+              _addVertex(p.normal.scale(1.0 / p.normal.norm()), _normals);
+              _addVertex(p.vertex_pos.scale(scale), _vertices);
             }
-            for (size_t i: {0, 1, 2, 0, 2, 3})
+            for (size_t i: {0, 1, 2, 3, 2, 0})
               _indices.push_back(vbo_idx + i);
             vbo_idx += 4;
           }
         }
+  }
 }
 
 void VerticesGrid::computeVBO(const HermitianGrid &hermitianGrid, float scale)
@@ -115,6 +110,9 @@ void VerticesGrid::initVAO()
   auto &indices_vect = _indices;
   GLuint *indices = &indices_vect[0];
 
+  glGenBuffers(1, &_EBO);
+  glGenVertexArrays(1, &_VAO);
+  glGenBuffers(1, &_VBO);
   glBindVertexArray(_VAO);
   {
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);

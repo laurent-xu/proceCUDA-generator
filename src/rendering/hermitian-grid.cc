@@ -15,8 +15,7 @@ namespace rendering {
 
   HermitianGrid::HermitianGrid(const std::vector<std::vector<node_t>> &, point_t dimensions, float nodeSize)
       : _dimensions(dimensions), _nodeSize(nodeSize) {
-    _initSurfaceNodes();
-    computeVBOIndices();
+    // _initSurfaceNodes();
     _computeIntersections();
     _computeContouringVertices(); // TODO: dual contouring
   }
@@ -27,6 +26,9 @@ namespace rendering {
       : _dimensions(dimensions), _nodeSize(nodeSize)
   {
     CERR << dimensions.x << " " << dimensions.y << " " << dimensions.z << std::endl;
+    CERR << "OFFSET: " << gridF3->get_grid_info().offset.x << " "
+         << gridF3->get_grid_info().offset.y << " "
+         << gridF3->get_grid_info().offset.z << std::endl;
     for (size_t k = 0; k < dimensions.z; k++) {
       _densityGrid.push_back(std::vector<node_t>());
       for (size_t i = 0; i < dimensions.y; i++)
@@ -35,23 +37,18 @@ namespace rendering {
         }
     }
     _grid = _densityGrid;
-    _initSurfaceNodes();
-    computeVBOIndices();
-    for (size_t k = 0; k < dimensions.z; k++)
-      for (size_t i = 0; i < dimensions.y; i++)
-        for (size_t j = 0; j < dimensions.x; j++) {
-          _grid[k][i * dimensions.x + j].vertex_pos = gridF3->get_grid_info().to_position(j, i, k);
-        }
+    _initSurfaceNodes(gridF3);
     _computeIntersections();
     _computeContouringVertices(); // TODO: dual contouring
   }
 
-  void HermitianGrid::_initSurfaceNodes() {
+  void HermitianGrid::_initSurfaceNodes(const GridF3<false>::grid_t &gridF3) {
     for (int z = 0; z < _dimensions.z; z++)
       for (int y = 0; y < _dimensions.y; y++)
         for (int x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
           node.min = point_t(x * _nodeSize, y * _nodeSize, z * _nodeSize);
+          node.min += point_t(gridF3->get_grid_info().offset).scale(gridF3->get_grid_info().dimension);
         }
   }
 
@@ -90,6 +87,9 @@ namespace rendering {
 
   point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
+    computeVertexInfo(x, y, z);
+    // CERR << node.vertex_pos.x << " " << node.vertex_pos.y << " " << node.vertex_pos.z << " -> "
+         // << node.min.x << " " << node.min.y << " " << node.min.z << std::endl;
     /*
     data_t n[] = {node.gradient.x, node.gradient.y, node.gradient.z};
     std::vector<data_t> N;
@@ -197,18 +197,44 @@ namespace rendering {
     }
   }
 
-  void HermitianGrid::computeVBOIndices() {
-    for (int z = 0; z < _dimensions.z; z++)
-      for (int y = 0; y < _dimensions.y; y++)
-        for (int x = 0; x < _dimensions.x; x++) {}
-  }
-
   bool HermitianGrid::isSurface(int x, int y, int z) {
     auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
     return (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
            || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
            || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
+
+    void HermitianGrid::computeVertexInfo(int x, int y, int z) {
+      point_t v_res = point_t(0, 0, 0);
+      point_t n_res = point_t(0, 0, 0);
+      int count = 0;
+      for (int i = 0; i <= 1 && x + i < _dimensions.x; i++)
+        for (int j = 0; j <= 1 && y + j < _dimensions.y; j++)
+          for (int k = 0; k <= 1 && z + k < _dimensions.z; k++) {
+            auto &node = _grid[z + k][(y + j) * _dimensions.x + (x + i)];
+            if (i == 0 && node.intersections.x != node.min.x) {
+              v_res += point_t(node.intersections.x, node.min.y, node.min.z);
+              n_res += getValueAt(x + i, y + j, z + k).gradient;
+              count++;
+            }
+            if (j == 0 && node.intersections.y != node.min.y)
+            {
+              v_res += point_t(node.min.x, node.intersections.y, node.min.z);
+              n_res += getValueAt(x + i, y + j, z + k).gradient;
+              count++;
+            }
+            if (k == 0 && node.intersections.z != node.min.z) {
+              v_res += point_t(node.min.x, node.min.y, node.intersections.z);
+              n_res += getValueAt(x + i, y + j, z + k).gradient;
+              count++;
+            }
+          }
+      v_res = v_res.scale(1.0f / count);
+      n_res = n_res.scale(1.0f / count);
+      auto &node = _grid[z][(y) * _dimensions.x + (x)];
+      node.normal = n_res;
+      node.vertex_pos = v_res;
+    }
 
 }
 
