@@ -3,7 +3,10 @@
 
 // This function must not return grids that overlap, it should return at least
 // the grid containing the camera with the lowest possible precision, denoted
-// initial_precision
+// initial_precision. Unless if this position is in the cache.
+// It is supposed to return  max_grid_per_frame grids that are not in the cache
+// If the nearest cache_size grids are already in the cache, the function won't
+// return anything
 void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();

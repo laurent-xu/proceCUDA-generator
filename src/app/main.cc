@@ -14,12 +14,17 @@
 void print_help(const std::string& bin)
 {
   std::cerr << "usage: " << bin << " grid_dim nb_thread_x nb_thread_y "
-                                   "nb_thread_z is_real_time "
+                                   "nb_thread_z max_grid_frame cache_size "
+                                   "is_real_time "
                                    "[x y z | nb_grids rand_min rand_max]"
                          << std::endl;
   std::cerr << "  grid_dim: the length of a density grid" << std::endl;
   std::cerr << "  nb_thread_[x|y|z]: the number of threads in a block. "
                "This has no consequences in CPU mode." << std::endl;
+  std::cerr << "  max_grid_frame: the maximum number of new grids per frame"
+            << std::endl;
+  std::cerr << "  cache_size: the size of the cache containing the previous "
+               "grids" << std::endl;
   std::cerr << "  is_real_time: It can be either true or false." << std::endl;
   std::cerr << "  x y z: In real time mode this is the initial position of "
                "the camera" << std::endl;
@@ -40,48 +45,46 @@ int main(int argc, char* argv[])
   size_t nb_thread_x = 0;
   size_t nb_thread_y = 0;
   size_t nb_thread_z = 0;
+  size_t max_grid_per_frame = 0;
+  size_t cache_size = 0;
 
   std::random_device rd;
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 
+  int next_arg = 1;
   if (argc >= 6)
   {
     try
     {
-      grid_dim = std::stoul(argv[1]);
-      nb_thread_x = std::stoul(argv[2]);
-      nb_thread_y = std::stoul(argv[3]);
-      nb_thread_z = std::stoul(argv[4]);
+      grid_dim = std::stoul(argv[next_arg++]);
+      nb_thread_x = std::stoul(argv[next_arg++]);
+      nb_thread_y = std::stoul(argv[next_arg++]);
+      nb_thread_z = std::stoul(argv[next_arg++]);
+      max_grid_per_frame = std::stoul(argv[next_arg++]);
+      cache_size = std::stoul(argv[next_arg++]);
 
-      std::string is_real_time_str = argv[5];
+      std::string is_real_time_str = argv[next_arg++];
       if (is_real_time_str != "false" && is_real_time_str != "true")
         print_help(argv[0]);
       is_real_time = is_real_time_str == "true";
 
+      if (argc != next_arg + 3)
+        print_help(argv[0]);
       if (is_real_time)
-      {
-        if (argc != 9)
-          print_help(argv[0]);
         for (size_t i = 0; i < 3; ++i)
-          camera_position[i] = std::stod(argv[i + 6]);
-      }
+          camera_position[i] = std::stod(argv[next_arg++]);
       else
       {
-        if (argc != 9)
-          print_help(argv[0]);
-        else
+        auto nb_positions = std::stoul(argv[next_arg++]);
+        double min = std::stod(argv[next_arg++]);
+        double max = std::stod(argv[next_arg++]);
+        std::uniform_real_distribution<> dis(min, max);
+        for (size_t j = 0; j < nb_positions; ++j)
         {
-          auto nb_positions = std::stoul(argv[6]);
-          double min = std::stod(argv[7]);
-          double max = std::stod(argv[8]);
-          std::uniform_real_distribution<> dis(min, max);
-          for (size_t j = 0; j < nb_positions; ++j)
-          {
-            auto tmp_position = glm::vec3();
-            for (size_t i = 0; i < 3; ++i)
-              tmp_position[i] = dis(gen);
-            camera_positions.push_back(tmp_position);
-          }
+          auto tmp_position = glm::vec3();
+          for (size_t i = 0; i < 3; ++i)
+            tmp_position[i] = dis(gen);
+          camera_positions.push_back(tmp_position);
         }
       }
     }
@@ -95,7 +98,8 @@ int main(int argc, char* argv[])
     print_help(argv[0]);
 
   auto grid_maker = AsynchronousGridMaker(grid_dim, nb_thread_x, nb_thread_y,
-                                          nb_thread_z);
+                                          nb_thread_z, max_grid_per_frame,
+                                          cache_size);
 
   if (is_real_time)
   {

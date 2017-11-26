@@ -13,11 +13,14 @@ class AsynchronousGridMaker
 {
 public:
   AsynchronousGridMaker(size_t nb_voxels, size_t nb_thread_x,
-                        size_t nb_thread_y, size_t nb_thread_z)
+                        size_t nb_thread_y, size_t nb_thread_z,
+                        size_t max_grid_per_frame, size_t /* TODO cache_size */)
     : nb_voxels(nb_voxels),
       nb_thread_x(nb_thread_x),
       nb_thread_y(nb_thread_y),
-      nb_thread_z(nb_thread_z)
+      nb_thread_z(nb_thread_z),
+      max_grid_per_frame(max_grid_per_frame)// TODO ANATOLE add a ',' on this line
+      // TODO ANATOLE cache_lru(cache_size)
   {
   }
 
@@ -53,6 +56,8 @@ private:
   size_t nb_thread_y;
   size_t nb_thread_z;
   std::vector<GridInfo> grids_info;
+  size_t max_grid_per_frame;
+  // TODO ANATOLE CacheType<std::shared_ptr<redering::VerticesGrid>> cache_lru;
 };
 
 #ifdef CUDA_GENERATION
@@ -101,7 +106,8 @@ static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info,
                                                      size_t nb_thread_y,
                                                      size_t nb_thread_z)
 {
-  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y, nb_thread_z);
+  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y,
+                                         nb_thread_z);
 #ifdef CUDA_GENERATION
   auto result = generated;
 #else
