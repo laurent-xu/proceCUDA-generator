@@ -22,28 +22,28 @@ const double AsynchronousGridMaker::vector[7][3] =
 void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();
-  double frequency = 1.;
+  double interval = 1.;
   size_t it = 0, nb_grid = 1;
   int coefficient = 1;
   GridInfo::vec3_t new_position;
-  new_position.x = position.x / (nb_voxels * frequency);
-  new_position.y = position.y / (nb_voxels * frequency);
-  new_position.z = position.z / (nb_voxels * frequency);
-  grids_info.emplace_back(frequency, new_position, nb_voxels);
+  new_position.x = position.x / (nb_voxels * interval);
+  new_position.y = position.y / (nb_voxels * interval);
+  new_position.z = position.z / (nb_voxels * interval);
+  grids_info.emplace_back(interval, new_position, nb_voxels);
   while (nb_grid < max_grid_per_frame)
   {
     GridInfo::vec3_t new_position;
-    new_position.x = position.x / (nb_voxels * frequency)
+    new_position.x = position.x / (nb_voxels * interval)
         + coefficient * AsynchronousGridMaker::vector[it][0];
-    new_position.y = position.y / (nb_voxels * frequency)
+    new_position.y = position.y / (nb_voxels * interval)
         + coefficient * AsynchronousGridMaker::vector[it][1];
-    new_position.z = position.z / (nb_voxels * frequency)
+    new_position.z = position.z / (nb_voxels * interval)
         + coefficient * AsynchronousGridMaker::vector[it][2];
-    grids_info.emplace_back(frequency, new_position, nb_voxels);
+    grids_info.emplace_back(float(1 / interval), new_position, nb_voxels);
     ++it; 
     if (it == 7)
     {
-      frequency *= 2;
+      interval *= 2;
       it = 0;
       coefficient = -coefficient;
     }
