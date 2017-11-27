@@ -38,11 +38,10 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
 
   for (const auto& info: grids_info)
   {
-    // TODO Anatole
-    // if (cache_lru.contains(info))
-    //    to_be_printed.push(cache_lru[info])
-    // else
-    generation_grids_info.push_back(info);
+    if (cache_lru.contains(info))
+      to_be_printed->push_back(cache_lru.get(info));
+    else
+      generation_grids_info.push_back(info);
   }
 
   for (const auto& info: generation_grids_info)
@@ -61,7 +60,7 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
                                1);
     auto vertices_grid =
       std::make_shared<rendering::VerticesGrid>(hermitian_grid, 1);
-    // cache_lru.add(info, vertices_grids) TODO Anatole
+    cache_lru.add(density_grid->get_grid_info(), vertices_grid);
     to_be_printed->push_back(vertices_grid);
     density_grid->release();
   }

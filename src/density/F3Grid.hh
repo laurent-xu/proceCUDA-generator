@@ -25,8 +25,9 @@ struct F3
   }
 };
 
-struct GridInfo
+class GridInfo
 {
+  public:
   using dist_t = double;
   using vec3_t = glm::tvec3<int>;
   GridInfo(dist_t precision, vec3_t offset, size_t dimension)
@@ -36,13 +37,29 @@ struct GridInfo
   {
   }
 
+  GridInfo()
+    : precision(0),
+      offset({0, 0, 0}),
+      dimension(0)
+  {
+  }
+
+  public:
   dist_t precision;
   vec3_t offset;
   size_t dimension;
 
+  public:
   BOTH_TARGET F3::vec3_t to_position(size_t x, size_t y, size_t z) const
   {
     return F3::vec3_t(offset * int(dimension) + vec3_t(x, y, z)) * precision;
+  }
+
+  bool operator ==(const GridInfo &b) const
+  {
+    return this->dimension == b.dimension
+    && this->offset == b.offset
+    && this->precision == b.precision;
   }
 };
 

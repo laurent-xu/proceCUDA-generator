@@ -2,6 +2,7 @@
 #include <rendering/viewer/camera.hh>
 #include <rendering/vertices-grid.hpp>
 #include <app/generation_kernel.hh>
+#include <octree/lru.hh>
 #include <utils/glm.hh>
 #include <condition_variable>
 #include <thread>
@@ -9,18 +10,28 @@
 #include <vector>
 
 
+class InfoHash {
+  public:
+  std::size_t operator()(GridInfo const& c) const {
+      size_t h1 = std::hash<double>()(c.offset.x);
+      size_t h2 = std::hash<double>()(c.offset.y);
+      size_t h3 = std::hash<double>()(c.offset.z);
+      return (h1 ^ (h2 << 1)) ^ h3;
+  }
+};
+
 class AsynchronousGridMaker
 {
 public:
   AsynchronousGridMaker(size_t nb_voxels, size_t nb_thread_x,
                         size_t nb_thread_y, size_t nb_thread_z,
-                        size_t max_grid_per_frame, size_t /* TODO cache_size */)
+                        size_t max_grid_per_frame, size_t cache_size)
     : nb_voxels(nb_voxels),
       nb_thread_x(nb_thread_x),
       nb_thread_y(nb_thread_y),
       nb_thread_z(nb_thread_z),
-      max_grid_per_frame(max_grid_per_frame)// TODO ANATOLE add a ',' on this line
-      // TODO ANATOLE cache_lru(cache_size)
+      max_grid_per_frame(max_grid_per_frame),
+      cache_lru(cache_size)
   {
   }
 
@@ -55,9 +66,9 @@ private:
   size_t nb_thread_x;
   size_t nb_thread_y;
   size_t nb_thread_z;
-  std::vector<GridInfo> grids_info;
   size_t max_grid_per_frame;
-  // TODO ANATOLE CacheType<std::shared_ptr<redering::VerticesGrid>> cache_lru;
+  LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash> cache_lru;
+  std::vector<GridInfo> grids_info;
 };
 
 #ifdef CUDA_GENERATION
@@ -76,7 +87,7 @@ static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info,
   auto result = GridF3<true>::get_grid(info);
   result->hold();
   kernel_f3_caller<<<Dg,Db>>>(*result);
-  // TODO Remove the next line
+  // TODO Laurent Remove the next line
   cudaDeviceSynchronize();
   result->release();
   return result;
