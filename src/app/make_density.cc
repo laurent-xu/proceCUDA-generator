@@ -102,18 +102,22 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
 
     if (!current_position || previous_position == *current_position)
       continue;
-    previous_position = *current_position;
 
     CERR << "Compute" << std::endl;
 
-    // TODO Anatole Compute the grids_info according to the camera position
-    //       with the octree
-    make_octree(*current_position);
-    auto to_be_printed = make_grid(previous_position, true);
-    make_octree(*current_position);
+    while (true)
+    {
+      if (!current_position)
+        current_position = std::make_shared<glm::vec3>(previous_position);
+      previous_position = *current_position;
+      make_octree(previous_position);
+      auto to_be_printed = make_grid(previous_position, true);
 
-    CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
-    std::atomic_store(vertices, to_be_printed);
+      CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
+      std::atomic_store(vertices, to_be_printed);
+      current_position = std::atomic_exchange(generation_position,
+                                              current_generation);
+    }
   }
   CERR << "End of make grids" << std::endl;
 }
