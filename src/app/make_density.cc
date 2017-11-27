@@ -48,7 +48,8 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
         + coefficient * AsynchronousGridMaker::vector[it][1];
     new_position.z = position.z / (nb_voxels * interval)
         + coefficient * AsynchronousGridMaker::vector[it][2];
-    grids_info.emplace_back(interval, new_position, nb_voxels);
+    if (interval == 1)
+      grids_info.emplace_back(interval, new_position, nb_voxels);
     auto info = grids_info.back();
     if (!cache_lru.contains(info))
     {
@@ -137,12 +138,10 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
       continue;
 
     done_generation = false;
-    while (true)
+    while (!done_generation)
     {
       if (!current_position)
         current_position = std::make_shared<glm::vec3>(previous_position);
-      if (done_generation)
-        break;
       previous_position = *current_position;
       auto to_be_printed = make_grid(previous_position, true);
       last_nb_grids = to_be_printed->size();
