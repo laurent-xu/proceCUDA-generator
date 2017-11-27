@@ -33,6 +33,7 @@ public:
       nb_thread_y(nb_thread_y),
       nb_thread_z(nb_thread_z),
       max_grid_per_frame(max_grid_per_frame),
+      cache_size(cache_size),
       cache_lru(cache_size)
   {
   }
@@ -69,6 +70,7 @@ private:
   size_t nb_thread_y;
   size_t nb_thread_z;
   size_t max_grid_per_frame;
+  size_t cache_size;
   LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash> cache_lru;
   std::vector<GridInfo> grids_info;
 };

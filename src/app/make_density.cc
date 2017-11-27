@@ -30,6 +30,7 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
 AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
 {
+  size_t nb_curr_gen = 0, nb_return = 0;
   make_octree(position);
   auto to_be_printed =
     std::make_shared<std::vector<std::shared_ptr<rendering::VerticesGrid>>>();
@@ -38,10 +39,16 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
 
   for (const auto& info: grids_info)
   {
+    if (nb_return == cache_size || nb_curr_gen == max_grid_per_frame)
+      break;
+    ++nb_return;
     if (cache_lru.contains(info))
       to_be_printed->push_back(cache_lru.get(info));
     else
+    {
+      ++nb_curr_gen;
       generation_grids_info.push_back(info);
+    }
   }
 
   for (const auto& info: generation_grids_info)
