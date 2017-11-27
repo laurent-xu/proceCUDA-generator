@@ -15,6 +15,11 @@ bool AsynchronousRendering::update_position()
   {
     switch (event.type)
     {
+      case sf::Event::Resized:
+        glViewport(0, 0, event.size.width, event.size.height);
+        projection = glm::perspective(glm::radians(45.0f),
+                                      (float) event.size.width / (float) event.size.height, 0.1f, 1000.0f);
+        break;
       case sf::Event::Closed:
         *running = false;
         break;
@@ -70,28 +75,28 @@ void AsynchronousRendering::init_frame()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   shader.Use();
-  GLint light_pos_loc = glGetUniformLocation(shader.getProgram(),
-                                             "lightPos");
-  GLint object_color_loc = glGetUniformLocation(shader.getProgram(),
-                                                "objectColor");
-  GLint light_color_loc  = glGetUniformLocation(shader.getProgram(),
-                                                "lightColor");
-  glUniform3f(object_color_loc, 1.0f, 0.5f, 0.31f);
-  // Also set light's color (white)
-  glUniform3f(light_color_loc,  1.0f, 1.0f, 1.0f);
-  glUniform3f(light_pos_loc, light_pos.x, light_pos.y, light_pos.z);
 
-  GLint model_loc = glGetUniformLocation(shader.getProgram(), "model");
-  glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
-  GLint view_loc = glGetUniformLocation(shader.getProgram(), "view");
-  glUniformMatrix4fv(view_loc, 1, GL_FALSE,
-                     glm::value_ptr(camera.getViewMatrix()));
-  GLint proj_loc = glGetUniformLocation(shader.getProgram(),
-                                       "projection");
-  glUniformMatrix4fv(proj_loc, 1, GL_FALSE, glm::value_ptr(projection));
-  GLint viewer_loc_pos = glGetUniformLocation(shader.getProgram(),
-                                            "viewerPos");
-  glUniform3f(viewer_loc_pos, camera.getPosition().x, camera.getPosition().y,
+  GLint pointLightPosLoc = glGetUniformLocation(shader.getProgram(), "pointLightPos");
+  GLint pointLightColorLoc  = glGetUniformLocation(shader.getProgram(), "pointLightColor");
+  glUniform3f(pointLightColorLoc,  1.0f, 1.0f, 1.0f); // Also set light's color (white)
+  glUniform3f(pointLightPosLoc, camera.getPosition().x, camera.getPosition().y,
+              camera.getPosition().z);
+
+  GLint lightDir1Loc = glGetUniformLocation(shader.getProgram(), "lightDir1");
+  GLint objectColorLoc = glGetUniformLocation(shader.getProgram(), "objectColor");
+  GLint lightColor1Loc  = glGetUniformLocation(shader.getProgram(), "lightColor1");
+  glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+  glUniform3f(lightColor1Loc,  1.0f, 1.0f, 6.0f); // Also set light's color (white)
+  glUniform3f(lightDir1Loc, 1.0f, 1.0f, 1.0f);
+
+  GLint modelLoc = glGetUniformLocation(shader.getProgram(), "model");
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  GLint viewLoc = glGetUniformLocation(shader.getProgram(), "view");
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+  GLint projLoc = glGetUniformLocation(shader.getProgram(), "projection");
+  glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+  GLint viewerLocPos = glGetUniformLocation(shader.getProgram(), "viewerPos");
+  glUniform3f(viewerLocPos, camera.getPosition().x, camera.getPosition().y,
               camera.getPosition().z);
 }
 

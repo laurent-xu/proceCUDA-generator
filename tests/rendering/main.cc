@@ -74,8 +74,8 @@ void testCube() {
   // Note that we're translating the scene in the reverse direction of where we want to move
   view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.0f));
   glm::mat4 projection;
-  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
+  projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
   Shader shader("../resources/shaders/vertex_shader.glsl",
                 "../resources/shaders/fragment_shader.glsl");
 
@@ -90,21 +90,31 @@ void testCube() {
   while (running) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     sf::Event event;
-    while (window->pollEvent(event))
+    while (window->pollEvent(event)) {
       if (event.type == sf::Event::Closed)
         running = false;
+      else if (event.type == sf::Event::Resized) {
+        glViewport(0, 0, event.size.width, event.size.height);
+        projection = glm::perspective(glm::radians(45.0f),
+                                      (float) event.size.width / (float) event.size.height, 0.1f, 1000.0f);
+      }
+    }
     updateCamera(camera, clock.getElapsedTime().asSeconds(), mousePosition);
     clock.restart();
-    lightPos.x = lightPosBase.x + glm::cos(rotationClock.getElapsedTime().asSeconds());
-    lightPos.y = lightPosBase.y + glm::sin(rotationClock.getElapsedTime().asSeconds());
     shader.Use();
 
-    GLint lightPosLoc = glGetUniformLocation(shader.getProgram(), "lightPos");
+    GLint pointLightPosLoc = glGetUniformLocation(shader.getProgram(), "pointLightPos");
+    GLint pointLightColorLoc  = glGetUniformLocation(shader.getProgram(), "pointLightColor");
+    glUniform3f(pointLightColorLoc,  1.0f, 1.0f, 1.0f); // Also set light's color (white)
+    glUniform3f(pointLightPosLoc, camera.getPosition().x, camera.getPosition().y,
+                camera.getPosition().z);
+
+    GLint lightDir1Loc = glGetUniformLocation(shader.getProgram(), "lightDir1");
     GLint objectColorLoc = glGetUniformLocation(shader.getProgram(), "objectColor");
-    GLint lightColorLoc  = glGetUniformLocation(shader.getProgram(), "lightColor");
+    GLint lightColor1Loc  = glGetUniformLocation(shader.getProgram(), "lightColor1");
     glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-    glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f); // Also set light's color (white)
-    glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(lightColor1Loc,  1.0f, 1.0f, 6.0f); // Also set light's color (white)
+    glUniform3f(lightDir1Loc, 1.0f, 1.0f, 1.0f);
 
     GLint modelLoc = glGetUniformLocation(shader.getProgram(), "model");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
