@@ -7,24 +7,48 @@
 // It is supposed to return  max_grid_per_frame grids that are not in the cache
 // If the nearest cache_size grids are already in the cache, the function won't
 // return anything
+
+const double AsynchronousGridMaker::vector[7][3] =
+{
+    {1, 0, 0},
+    {0, 1, 0},
+    {0, 0, 1},
+    {1, 1, 0},
+    {0, 1, 1},
+    {1, 0, 1},
+    {1, 1, 1},
+};
+
 void AsynchronousGridMaker::make_octree(const glm::vec3& position)
 {
   grids_info.clear();
-  // TODO Anatole below
-  GridInfo::vec3_t origin;
-  double initial_precision = 1.;
-
-  // The next three lines give the offset of the grid containing the camera with
-  // the given precision.
-  origin.x = position.x / (nb_voxels * initial_precision);
-  origin.y = position.y / (nb_voxels * initial_precision);
-  origin.z = position.z / (nb_voxels * initial_precision);
-
-  for (auto x = -2; x < 2; ++x)
-    for (auto y = -2; y < 2; ++y)
-      for (auto z = -2; z < 2; ++z)
-        grids_info.emplace_back(1., origin + GridInfo::vec3_t(x, y, z),
-                                nb_voxels);
+  double frequency = 1.;
+  size_t it = 0, nb_grid = 1;
+  int coefficient = 1;
+  GridInfo::vec3_t new_position;
+  new_position.x = position.x / (nb_voxels * frequency);
+  new_position.y = position.y / (nb_voxels * frequency);
+  new_position.z = position.z / (nb_voxels * frequency);
+  grids_info.emplace_back(frequency, new_position, nb_voxels);
+  while (nb_grid < max_grid_per_frame)
+  {
+    GridInfo::vec3_t new_position;
+    new_position.x = position.x / (nb_voxels * frequency)
+        + coefficient * AsynchronousGridMaker::vector[it][0];
+    new_position.y = position.y / (nb_voxels * frequency)
+        + coefficient * AsynchronousGridMaker::vector[it][1];
+    new_position.z = position.z / (nb_voxels * frequency)
+        + coefficient * AsynchronousGridMaker::vector[it][2];
+    grids_info.emplace_back(frequency, new_position, nb_voxels);
+    ++it; 
+    if (it == 7)
+    {
+      frequency *= 2;
+      it = 0;
+      coefficient = -coefficient;
+    }
+    ++nb_grid;    
+  }
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>

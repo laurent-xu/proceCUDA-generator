@@ -63,6 +63,7 @@ public:
     return std::thread([&](){make_grids(generation_position, running.get(),
                                         vertices, cv_generation, m);});
   }
+  static const double vector[7][3];
 
 private:
   size_t nb_voxels;
