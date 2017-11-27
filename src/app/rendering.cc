@@ -105,7 +105,7 @@ void AsynchronousRendering::render_grids()
   projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f,
                                              0.1f, 1000.0f);
   shader = Shader("../resources/shaders/vertex_shader.glsl",
-                "../resources/shaders/fragment_shader.glsl");
+                  "../resources/shaders/fragment_shader.glsl");
 
   glClearColor(0.1, 0.1, 0.1, 1.0);
 

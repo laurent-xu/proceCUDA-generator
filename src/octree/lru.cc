@@ -16,6 +16,8 @@ template <class KEY_T, class VAL_T, class HASH_T>
 VAL_T LRUCache<KEY_T, class VAL_T, class HASH_T>::get(const KEY_T &key)
 {
     auto it = item_map.find(key);
+    auto result = it->second->second;
     item_list.splice(item_list.begin(), item_list, it->second);
-    return it->second->second;
+    item_map[key] = item_list.begin();
+    return result;
 };

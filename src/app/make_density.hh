@@ -74,6 +74,7 @@ private:
   size_t cache_size;
   LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash> cache_lru;
   std::vector<GridInfo> grids_info;
+  bool done_generation;
 };
 
 #ifdef CUDA_GENERATION
