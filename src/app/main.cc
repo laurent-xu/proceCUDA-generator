@@ -15,6 +15,7 @@ void print_help(const std::string& bin)
 {
   std::cerr << "usage: " << bin << " grid_dim nb_thread_x nb_thread_y "
                                    "nb_thread_z max_grid_frame cache_size "
+				   "max_grid_display "
                                    "is_real_time "
                                    "[x y z | nb_grids rand_min rand_max]"
                          << std::endl;
@@ -47,12 +48,13 @@ int main(int argc, char* argv[])
   size_t nb_thread_z = 0;
   size_t max_grid_per_frame = 0;
   size_t cache_size = 0;
+  size_t max_grid_display = 0;
 
   std::random_device rd;
   std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 
   int next_arg = 1;
-  if (argc >= 6)
+  if (argc >= 7)
   {
     try
     {
@@ -62,6 +64,7 @@ int main(int argc, char* argv[])
       nb_thread_z = std::stoul(argv[next_arg++]);
       max_grid_per_frame = std::stoul(argv[next_arg++]);
       cache_size = std::stoul(argv[next_arg++]);
+      max_grid_display = std::stoul(argv[next_arg++]);
 
       std::string is_real_time_str = argv[next_arg++];
       if (is_real_time_str != "false" && is_real_time_str != "true")
@@ -99,7 +102,7 @@ int main(int argc, char* argv[])
 
   auto grid_maker = AsynchronousGridMaker(grid_dim, nb_thread_x, nb_thread_y,
                                           nb_thread_z, max_grid_per_frame,
-                                          cache_size);
+                                          cache_size, max_grid_display);
 
   if (is_real_time)
   {

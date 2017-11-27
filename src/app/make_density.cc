@@ -19,18 +19,27 @@ const double AsynchronousGridMaker::vector[7][3] =
     {1, 1, 1},
 };
 
-void AsynchronousGridMaker::make_octree(const glm::vec3& position)
+void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> to_be_printed, std::vector<GridInfo>& generation_grids_info)
 {
   grids_info.clear();
   double interval = 1.;
-  size_t it = 0, nb_grid = 1;
+  size_t it = 0;
+  size_t nb_curr_gen = 0, nb_return = 1;
   int coefficient = 1;
   GridInfo::vec3_t new_position;
   new_position.x = position.x / (nb_voxels * interval);
   new_position.y = position.y / (nb_voxels * interval);
   new_position.z = position.z / (nb_voxels * interval);
   grids_info.emplace_back(interval, new_position, nb_voxels);
-  while (nb_grid < max_grid_per_frame)
+  auto info = grids_info.back();
+  if (!cache_lru.contains(info))
+  {
+    ++nb_curr_gen;	
+    generation_grids_info.push_back(info);
+  }
+  else
+    to_be_printed->push_back(cache_lru.get(info));
+  while (nb_return < max_grid_display && nb_curr_gen < max_grid_per_frame)
   {
     GridInfo::vec3_t new_position;
     new_position.x = position.x / (nb_voxels * interval)
@@ -40,6 +49,15 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
     new_position.z = position.z / (nb_voxels * interval)
         + coefficient * AsynchronousGridMaker::vector[it][2];
     grids_info.emplace_back(interval, new_position, nb_voxels);
+    auto info = grids_info.back();
+    if (!cache_lru.contains(info))
+    {
+      ++nb_curr_gen;	
+      generation_grids_info.push_back(info);
+    }
+    else
+      to_be_printed->push_back(cache_lru.get(info));
+    CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
     ++it; 
     if (it == 7)
     {
@@ -47,34 +65,21 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position)
       it = 0;
       coefficient = -coefficient;
     }
-    ++nb_grid;
+    ++nb_return;
   }
+  CERR << "nb generated " << nb_curr_gen << std::endl;
+  if (nb_curr_gen == 0)
+    done_generation = true;
 }
 
 std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
 AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
 {
-  size_t nb_curr_gen = 0;
-  size_t nb_return = 0;
-  make_octree(position);
   auto to_be_printed =
     std::make_shared<std::vector<std::shared_ptr<rendering::VerticesGrid>>>();
   static std::vector<GridInfo> generation_grids_info;
   static std::vector<GridF3<false>::grid_t> density_grids;
-
-  for (const auto& info: grids_info)
-  {
-    if (nb_return == cache_size || nb_curr_gen == max_grid_per_frame)
-      break;
-    ++nb_return;
-    if (cache_lru.contains(info))
-      to_be_printed->push_back(cache_lru.get(info));
-    else
-    {
-      ++nb_curr_gen;
-      generation_grids_info.push_back(info);
-    }
-  }
+  make_octree(position, to_be_printed, generation_grids_info);
 
   for (const auto& info: generation_grids_info)
   {
@@ -98,9 +103,6 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
   }
   generation_grids_info.clear();
   density_grids.clear();
-  CERR << "nb generated " << nb_curr_gen << std::endl;
-  if (nb_curr_gen == 0)
-    done_generation = true;
   return to_be_printed;
 }
 
@@ -142,7 +144,6 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
       if (done_generation)
         break;
       previous_position = *current_position;
-      make_octree(previous_position);
       auto to_be_printed = make_grid(previous_position, true);
       last_nb_grids = to_be_printed->size();
 
