@@ -16,7 +16,9 @@ class InfoHash {
       size_t h1 = std::hash<double>()(c.offset.x);
       size_t h2 = std::hash<double>()(c.offset.y);
       size_t h3 = std::hash<double>()(c.offset.z);
-      return (h1 ^ (h2 << 1)) ^ h3;
+      size_t h4 = std::hash<double>()(c.dimension);
+      size_t h5 = std::hash<size_t>()(c.precision);
+      return (((h1 ^ (h2 << 1)) ^ h3) ^ (h4 << 1)) ^ h5;
   }
 };
 
