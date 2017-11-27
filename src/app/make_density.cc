@@ -90,17 +90,22 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
                                               nb_thread_z));
   }
 
-  for (auto& density_grid: density_grids)
+  #pragma omp parallel for
+  for (size_t i = 0; i < density_grids.size(); ++i)
   {
+    auto& density_grid = density_grids[i];
     auto hermitian_grid =
       rendering::HermitianGrid(density_grid,
                                rendering::point_t(density_grid->dim_size()),
                                1);
     auto vertices_grid =
       std::make_shared<rendering::VerticesGrid>(hermitian_grid, 1);
-    cache_lru.add(density_grid->get_grid_info(), vertices_grid);
-    to_be_printed->push_back(vertices_grid);
-    density_grid->release();
+    #pragma omp critical
+    {
+      cache_lru.add(density_grid->get_grid_info(), vertices_grid);
+      to_be_printed->push_back(vertices_grid);
+      density_grid->release();
+    }
   }
   generation_grids_info.clear();
   density_grids.clear();

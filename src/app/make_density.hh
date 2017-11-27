@@ -110,6 +110,7 @@ static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
 {
   size_t dimension = info.dimension;
   auto result = GridF3<false>::get_grid(info);
+  #pragma omp parallel for
   for (size_t x = 0; x < dimension; ++x)
     for (size_t y = 0; y < dimension; ++y)
       for (size_t z = 0; z < dimension; ++z)
