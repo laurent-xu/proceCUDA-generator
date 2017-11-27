@@ -100,23 +100,25 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
                                               current_position);
     }
 
-    if (!current_position || previous_position == *current_position)
-      continue;
-
     CERR << "Compute" << std::endl;
+    size_t last_nb_grids = 0;
 
     while (true)
     {
       if (!current_position)
         current_position = std::make_shared<glm::vec3>(previous_position);
+      if (previous_position == *current_position &&
+          last_nb_grids == cache_lru.size())
+        break;
       previous_position = *current_position;
       make_octree(previous_position);
       auto to_be_printed = make_grid(previous_position, true);
+      last_nb_grids = to_be_printed->size();
 
       CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
       std::atomic_store(vertices, to_be_printed);
       current_position = std::atomic_exchange(generation_position,
-                                              current_generation);
+                                              current_position);
     }
   }
   CERR << "End of make grids" << std::endl;

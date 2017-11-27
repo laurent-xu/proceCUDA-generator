@@ -28,6 +28,7 @@ class LRUCache
         void add(const KEY_T &key, const VAL_T &val);
         VAL_T get(const KEY_T &key);
         bool contains(const KEY_T &key) {return item_map.count(key) > 0;};
+        size_t size() const {return cache_size;}
 };
 
 #include "lru.cc"

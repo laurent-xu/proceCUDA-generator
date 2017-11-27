@@ -3,7 +3,7 @@
 #ifdef DEBUG
 #define CERR std::cerr
 #else
-#define CERR std::cerr
+#define CERR while(false) std::cerr
 #endif
 
 #ifdef CUDA_CODE
