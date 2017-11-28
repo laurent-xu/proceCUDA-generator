@@ -18,6 +18,7 @@
   }                                                                            \
 }
 
+#define __FORCEINLINE__ __forceinline__
 #define BOTH_TARGET __device__ __host__
 #define DEVICE_TARGET __device__
 #define HOST_TARGET __host__
@@ -51,6 +52,7 @@
 #define RENDERING_TYPE true
 #endif
 #else
+#define __FORCEINLINE__ inline
 #define CUDA_DEVICE_SYNCRHONIZE() do { continue; } while(false)
 #define CUDA_MALLOC_HOST(points, size) do { *points = (F3*)malloc(size); } while(false)
 #define CUDA_FREE_HOST(points) do { free(points); } while(false)

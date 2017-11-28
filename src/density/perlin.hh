@@ -1,26 +1,27 @@
+#include <utils/cudamacro.hh>
 namespace density
 {
 
 DEVICE_TARGET
-inline static double smooth(double x)
+static __FORCEINLINE__ double smooth(double x)
 {
     return 3 * x * x - 2 * x * x * x;
 }
 
 DEVICE_TARGET
-inline static double smooth_d(double x)
+ __FORCEINLINE__ static double smooth_d(double x)
 {
     return 6 * x - 6 * x * x;
 }
 
 DEVICE_TARGET
-inline static double linear_interpolate(double a, double b, double t)
+ __FORCEINLINE__ static double linear_interpolate(double a, double b, double t)
 {
     return (1. - t) * a + t * b;
 }
 
 DEVICE_TARGET
-inline static F3::vec3_t get_grad(int x, int y, int z, size_t seed)
+ __inline__ static F3::vec3_t get_grad(int x, int y, int z, size_t seed)
 {
     constexpr int permutations[] =
     {
@@ -56,7 +57,7 @@ inline static F3::vec3_t get_grad(int x, int y, int z, size_t seed)
 }
 
 DEVICE_TARGET
-inline static F3 perlin(const F3::vec3_t& position,
+ __FORCEINLINE__ static F3 perlin(const F3::vec3_t& position,
         double normalization, size_t seed)
 {
     double x = position.x / normalization;
