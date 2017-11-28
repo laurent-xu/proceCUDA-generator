@@ -8,14 +8,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 find_package(CUDA REQUIRED)
 find_package (Threads REQUIRED)
 
-set(CUDA_NVCC_FLAGS_TMP -Xcompiler
+set(CUDA_NVCC_FLAGS_TMP -keep -Xcompiler
     -D__CORRECT_ISO_CPP11_MATH_H_PROTO
         -D_MWAITXINTRIN_H_INCLUDED
         -D_FORCE_INLINES
         -D__STRICT_ANSI__
     -ccbin ${CMAKE_CXX_COMPILER}
     -Xcompiler -fPIC --expt-relaxed-constexpr
-    -Wno-deprecated-gpu-targets)
+    -Wno-deprecated-gpu-targets
+    -maxrregcount 64)
 
 MESSAGE("glew not found, installing glew")
 execute_process(COMMAND git submodule update --init -- ThirdParties/glew
