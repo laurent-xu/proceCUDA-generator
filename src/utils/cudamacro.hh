@@ -41,15 +41,19 @@
       exit(EXIT_FAILURE);                                                        \
     }                                                                            \
   } while(0)
-
+#define CUDA_DEVICE_SYNCRHONIZE() cudaDeviceSynchronize()
+#define CUDA_MALLOC_HOST(points, size) do { cudaMallocHost(points, size); } while(false)
+#define CUDA_FREE_HOST(points) do { cudaFreeHost(points); } while(false)
 #ifdef CUDA_GENERTION
 #define GENERATION_TYPE true
 #endif
 #ifdef CUDA_RENDERING
 #define RENDERING_TYPE true
 #endif
-
 #else
+#define CUDA_DEVICE_SYNCRHONIZE() do { continue; } while(false)
+#define CUDA_MALLOC_HOST(points, size) do { *points = (F3*)malloc(size); } while(false)
+#define CUDA_FREE_HOST(points) do { free(points); } while(false)
 #define BOTH_TARGET
 #define DEVICE_TARGET
 #define HOST_TARGET

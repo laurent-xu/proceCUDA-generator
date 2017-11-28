@@ -1,5 +1,6 @@
 #include <app/make_density.hh>
 #include <app/generation_kernel.hh>
+#include <utils/cudamacro.hh>
 
 // This function must not return grids that overlap, it should return at least
 // the grid containing the camera with the lowest possible precision, denoted
@@ -19,7 +20,11 @@ const double AsynchronousGridMaker::vector[7][3] =
     {1, 1, 1},
 };
 
-void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> to_be_printed, std::vector<GridInfo>& generation_grids_info)
+void AsynchronousGridMaker::make_octree(const glm::vec3& position,
+                                        std::shared_ptr<std::vector<
+                                          std::shared_ptr<rendering::VerticesGrid>>>
+                                        to_be_printed,
+                                        std::vector<GridInfo>& generation_grids_info)
 {
   grids_info.clear();
   double interval = 1.;
@@ -34,7 +39,7 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
   auto info = grids_info.back();
   if (!cache_lru.contains(info))
   {
-    ++nb_curr_gen;	
+    ++nb_curr_gen;
     generation_grids_info.push_back(info);
   }
   else
@@ -53,7 +58,7 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
     auto info = grids_info.back();
     if (!cache_lru.contains(info))
     {
-      ++nb_curr_gen;	
+      ++nb_curr_gen;
       generation_grids_info.push_back(info);
     }
     else
@@ -82,13 +87,17 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
   static std::vector<GridF3<false>::grid_t> density_grids;
   make_octree(position, to_be_printed, generation_grids_info);
 
-  for (const auto& info: generation_grids_info)
+  for (size_t i = 0; i < generation_grids_info.size(); ++i)
   {
     // GridF3<DensityTarget>::grid_t where DensityTarget depends on the
     // device used by the rendering
+    auto& info = generation_grids_info[i];
     density_grids.push_back(make_density_grid(info, nb_thread_x, nb_thread_y,
-                                              nb_thread_z));
+                                              nb_thread_z, i % nb_streams,
+                                              nb_streams));
   }
+
+  CUDA_DEVICE_SYNCRHONIZE();
 
   #pragma omp parallel for
   for (size_t i = 0; i < density_grids.size(); ++i)
@@ -137,7 +146,6 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
     }
 
     CERR << "Compute" << std::endl;
-    size_t last_nb_grids = 0;
 
     if (*current_position == previous_position)
       continue;
@@ -149,7 +157,6 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
         current_position = std::make_shared<glm::vec3>(previous_position);
       previous_position = *current_position;
       auto to_be_printed = make_grid(previous_position, true);
-      last_nb_grids = to_be_printed->size();
 
       CERR << "Frame " << frame_idx++ << " is computed" << std::endl;
       std::atomic_store(vertices, to_be_printed);
