@@ -137,7 +137,7 @@ AsynchronousGridMaker::make_grids(std::shared_ptr<glm::vec3>*
     CERR << "Compute" << std::endl;
     size_t last_nb_grids = 0;
 
-    if (*current_position == previous_position)
+    if (!current_position || *current_position == previous_position)
       continue;
 
     done_generation = false;

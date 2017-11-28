@@ -57,7 +57,7 @@ namespace density
                                               double radius,
                                               const F3::vec3_t& position)
   {
-    return glm::normalize_safe(position - center) * radius;
+    return glm::normalize_safe(position - center) * radius + center;
   }
 
   DEVICE_TARGET inline static F3 spatialize(const F3& height,
@@ -65,9 +65,10 @@ namespace density
                                             const F3::vec3_t& center_to_pos)
   {
     F3 in;
-    in.grad = height.grad * (height.val + radius) / radius;
+    in.grad = height.grad * center_to_pos / radius;
+    auto distance2center = glm::normalize_safe(center_to_pos);
     in.grad -= glm::dot(in.grad, glm::normalize_safe(center_to_pos));
-    in.val = height.val - radius;
+    in.val = glm::length(distance2center) - (height.val + radius);
     return in;
   }
 
