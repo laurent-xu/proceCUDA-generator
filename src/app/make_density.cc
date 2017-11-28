@@ -19,22 +19,22 @@ const int AsynchronousGridMaker::vector[7][3] =
     {1, 1, 1},
 };
 
-void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> to_be_printed, std::vector<GridInfo>& generation_grids_info)
+void AsynchronousGridMaker::make_octree(const glm::vec3& position,
+    std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
+    to_be_printed, std::vector<GridInfo>& generation_grids_info)
 {
   grids_info.clear();
   double interval = 1.;
   size_t it = 0;
   size_t nb_curr_gen = 0, nb_return = 1;
-  CERR << position.x << " " << position.y << " " << position.z << std::endl;
   GridInfo::vec3_t new_position;
-  new_position.x = std::floor(position.x / (nb_voxels * interval));
-  new_position.y = std::floor(position.y / (nb_voxels * interval));
-  new_position.z = std::floor(position.z / (nb_voxels * interval));
-  int coefficient_x = new_position.x % 2 == 0 ? 1 : -1;
-  int coefficient_y = new_position.y % 2 == 0 ? 1 : -1;
-  int coefficient_z = new_position.z % 2 == 0 ? 1 : -1;
+  int coefficient[3];
+  for (int i = 0; i < 3; ++i)
+  {
+    new_position[i] = std::floor(position[i] / (nb_voxels * interval));
+    coefficient[i] = new_position[i] % 2 == 0 ? 1 : -1;
+  }
   grids_info.emplace_back(interval, new_position, nb_voxels);
-  //CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
   auto info = grids_info.back();
   if (!cache_lru.contains(info))
   {
@@ -45,18 +45,13 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
     to_be_printed->push_back(cache_lru.get(info));
   while (nb_return < max_grid_display && nb_curr_gen < max_grid_per_frame)
   {
-    GridInfo::vec3_t new_position;
-    new_position.x = std::floor(position.x / (nb_voxels * interval))
-      + coefficient_x * AsynchronousGridMaker::vector[it][0];
-    new_position.y = std::floor(position.y / (nb_voxels * interval))
-      + coefficient_y * AsynchronousGridMaker::vector[it][1];
-    new_position.z = std::floor(position.z / (nb_voxels * interval))
-      + coefficient_z * AsynchronousGridMaker::vector[it][2];
-    //CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
+    for (int i = 0; i < 3; ++i)
+    {
+      new_position[i] = std::floor(position[i] / (nb_voxels * interval))
+      + coefficient[i] * AsynchronousGridMaker::vector[it][i];
+    }
     grids_info.emplace_back(interval, new_position, nb_voxels);
     auto info = grids_info.back();
-    auto pos = info.to_position(0, 16, 31);
-    CERR << "INFO POS : "<< pos.x << " " << pos.y << " " << pos.z << std::endl;
     if (!cache_lru.contains(info))
     {
       ++nb_curr_gen;	
@@ -69,17 +64,14 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
     {
       interval *= 2;
       it = 0;
-      GridInfo::vec3_t new_position;
-      new_position.x = std::floor(position.x / (nb_voxels * interval));
-      new_position.y = std::floor(position.y / (nb_voxels * interval));
-      new_position.z = std::floor(position.z / (nb_voxels * interval));
-      coefficient_x = new_position.x % 2 == 0 ? 1 : -1;
-      coefficient_y = new_position.y % 2 == 0 ? 1 : -1;
-      coefficient_z = new_position.z % 2 == 0 ? 1 : -1;
+      for (int i = 0; i < 3; ++i)
+      {
+        new_position[i] = std::floor(position[i] / (nb_voxels * interval));
+        coefficient[i] = new_position[i] % 2 == 0 ? 1 : -1;
+      }
     }
     ++nb_return;
   }
-  CERR << "nb generated " << nb_curr_gen << std::endl;
   if (nb_curr_gen == 0)
     done_generation = true;
 }
