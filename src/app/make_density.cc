@@ -8,7 +8,7 @@
 // If the nearest cache_size grids are already in the cache, the function won't
 // return anything
 
-const double AsynchronousGridMaker::vector[7][3] =
+const int AsynchronousGridMaker::vector[7][3] =
 {
     {1, 0, 0},
     {0, 1, 0},
@@ -25,12 +25,16 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
   double interval = 1.;
   size_t it = 0;
   size_t nb_curr_gen = 0, nb_return = 1;
-  int coefficient = 1;
+  CERR << position.x << " " << position.y << " " << position.z << std::endl;
   GridInfo::vec3_t new_position;
-  new_position.x = position.x / (nb_voxels * interval);
-  new_position.y = position.y / (nb_voxels * interval);
-  new_position.z = position.z / (nb_voxels * interval);
+  new_position.x = std::floor(position.x / (nb_voxels * interval));
+  new_position.y = std::floor(position.y / (nb_voxels * interval));
+  new_position.z = std::floor(position.z / (nb_voxels * interval));
+  int coefficient_x = new_position.x % 2 == 0 ? 1 : -1;
+  int coefficient_y = new_position.y % 2 == 0 ? 1 : -1;
+  int coefficient_z = new_position.z % 2 == 0 ? 1 : -1;
   grids_info.emplace_back(interval, new_position, nb_voxels);
+  //CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
   auto info = grids_info.back();
   if (!cache_lru.contains(info))
   {
@@ -42,15 +46,17 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
   while (nb_return < max_grid_display && nb_curr_gen < max_grid_per_frame)
   {
     GridInfo::vec3_t new_position;
-    new_position.x = position.x / (nb_voxels * interval)
-        + coefficient * AsynchronousGridMaker::vector[it][0];
-    new_position.y = position.y / (nb_voxels * interval)
-        + coefficient * AsynchronousGridMaker::vector[it][1];
-    new_position.z = position.z / (nb_voxels * interval)
-        + coefficient * AsynchronousGridMaker::vector[it][2];
-    if (interval == 1)
-      grids_info.emplace_back(interval, new_position, nb_voxels);
+    new_position.x = std::floor(position.x / (nb_voxels * interval))
+      + coefficient_x * AsynchronousGridMaker::vector[it][0];
+    new_position.y = std::floor(position.y / (nb_voxels * interval))
+      + coefficient_y * AsynchronousGridMaker::vector[it][1];
+    new_position.z = std::floor(position.z / (nb_voxels * interval))
+      + coefficient_z * AsynchronousGridMaker::vector[it][2];
+    //CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
+    grids_info.emplace_back(interval, new_position, nb_voxels);
     auto info = grids_info.back();
+    auto pos = info.to_position(0, 16, 31);
+    CERR << "INFO POS : "<< pos.x << " " << pos.y << " " << pos.z << std::endl;
     if (!cache_lru.contains(info))
     {
       ++nb_curr_gen;	
@@ -58,13 +64,18 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position, std::shared_p
     }
     else
       to_be_printed->push_back(cache_lru.get(info));
-    CERR << interval << ": (" << new_position.x << "," << new_position.y << "," << new_position.z << ")" << std::endl;
     ++it; 
     if (it == 7)
     {
       interval *= 2;
       it = 0;
-      coefficient = -coefficient;
+      GridInfo::vec3_t new_position;
+      new_position.x = std::floor(position.x / (nb_voxels * interval));
+      new_position.y = std::floor(position.y / (nb_voxels * interval));
+      new_position.z = std::floor(position.z / (nb_voxels * interval));
+      coefficient_x = new_position.x % 2 == 0 ? 1 : -1;
+      coefficient_y = new_position.y % 2 == 0 ? 1 : -1;
+      coefficient_z = new_position.z % 2 == 0 ? 1 : -1;
     }
     ++nb_return;
   }
