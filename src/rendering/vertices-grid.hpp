@@ -18,8 +18,6 @@ namespace rendering {
       void initVAO();
 
     private:
-      point_t _computeNormal(const point_t& p1, const point_t& p2,
-                             const point_t& p3);
       void computeVBO(const HermitianGrid& hermitianGrid, float scale);
       void VBO_kernel(const HermitianGrid& hermitianGrid, float scale,
                       size_t x, size_t y, size_t z, size_t& vbo_idx);
@@ -33,7 +31,6 @@ namespace rendering {
       GLuint _VAO;
       GLuint _VBO;
       GLuint _EBO;
-      bool is_inited_ = false;
 
     public:
       const std::vector <GLfloat> &getVertices() const { return _vertices; }

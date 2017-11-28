@@ -5,8 +5,6 @@
 #include <iostream>
 #include <iomanip>
 #include <rendering/utils/nm-matrix.hpp>
-#include <utils/cudamacro.hh>
-#include <density/F3Grid.hh>
 #include <tgmath.h>
 #include "hermitian-grid.hh"
 #include "qr-decomposition.hpp"
@@ -90,58 +88,7 @@ namespace rendering {
   point_t HermitianGrid::_computeVerticeForNode(int x, int y, int z) {
     auto &node = _grid[z][y * _dimensions.x + x];
     computeVertexInfo(x, y, z);
-    // CERR << node.vertex_pos.x << " " << node.vertex_pos.y << " " << node.vertex_pos.z << " -> "
-         // << node.min.x << " " << node.min.y << " " << node.min.z << std::endl;
-    /*
-    data_t n[] = {node.gradient.x, node.gradient.y, node.gradient.z};
-    std::vector<data_t> N;
-    N.assign(n, n + 3);
-    std::vector<data_t> A;
-    std::vector<data_t> b;
-    for (int i = 0; i <= 1 && x + i < _dimensions.x; i += 1)
-      for (int j = 0; j <= 1 && y + j < _dimensions.y; j += 1)
-        for (int k = 0; k <= 1 && z + k < _dimensions.z; k += 1) {
-          _registerIntersectionsForVertex(A, b, N, getValueAt(x + i, y + j, z + k),
-                                          i != 1, j != 1, k != 1);
-        }
-    auto Ab = utils::nmMatrix::append(A, b, (int) b.size(), 3, 1);
-    QRDecomposition qrd(Ab, (int) (Ab.size() / 4), 4);
-    auto QAb = qrd.getProcessedMatrix();
-    auto xA = qrd.extractAa();
-    // utils::nmMatrix::print(xA, 3, 3, 12);
-    auto xb = qrd.extractBb();
-    // utils::nmMatrix::print(xb, 3, 1, 12);
-    auto r = qrd.getR();
-    // CERR << r << std::endl;
-    return point_t(0, 0, 0);
-    */
   }
-
-
-  void HermitianGrid::_registerIntersectionsForVertex(std::vector<data_t> &A, std::vector<data_t> &b,
-                                                      const std::vector<data_t> &N, const node_t &node,
-                                                      bool check_x, bool check_y, bool check_z) {
-    if (check_x && node.intersections.x != 0)
-      _registerIntersectionsForAxis(A, b, N, node, 0);
-    if (check_y && node.intersections.y != 0)
-      _registerIntersectionsForAxis(A, b, N, node, 1);
-    if (check_z && node.intersections.z != 0)
-      _registerIntersectionsForAxis(A, b, N, node, 2);
-  }
-
-  void HermitianGrid::_registerIntersectionsForAxis(std::vector<data_t> &A, std::vector<data_t> &b,
-                                                    const std::vector<data_t> &N, const node_t &node, int axis) {
-    A.insert(A.end(), N.begin(), N.end());
-    data_t p[3] = {node.min.x, node.min.y, node.min.z};
-    data_t intersections_compo[3] = {node.intersections.x, node.intersections.y, node.intersections.z};
-    p[axis] += intersections_compo[axis];
-    std::vector<data_t> pi;
-    pi.assign(p, p + 3);
-    std::vector<data_t> ni = N;
-    data_t np = utils::nmMatrix::multiply(ni, pi, 1, 3, 3, 1)[0];
-    b.push_back(np);
-  }
-
 
   bool HermitianGrid::pointContainsFeature(int x, int y, int z) const {
     int nb_air = 0;
@@ -197,13 +144,6 @@ namespace rendering {
         CERR << std::endl;
       }
     }
-  }
-
-  bool HermitianGrid::isSurface(int x, int y, int z) {
-    auto &densityNode = _densityGrid[z][y * _dimensions.x + x];
-    return (x + 1 < _dimensions.x && _densityGrid[z][y * _dimensions.x + x + 1].value * densityNode.value < 0)
-           || (y + 1 < _dimensions.y && _densityGrid[z][(y + 1) * _dimensions.x + x].value * densityNode.value < 0)
-           || (z + 1 < _dimensions.z && _densityGrid[z + 1][y * _dimensions.x + x].value * densityNode.value < 0);
   }
 
     void HermitianGrid::computeVertexInfo(int x, int y, int z) {

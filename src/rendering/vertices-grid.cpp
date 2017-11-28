@@ -14,17 +14,6 @@ VerticesGrid::VerticesGrid(const HermitianGrid &hermitianGrid, float scale)
   // initVAO();
 }
 
-point_t VerticesGrid::_computeNormal(const point_t &p1, const point_t &p2,
-                                     const point_t &p3)
-{
-  auto U = p2 - p1;
-  auto V = p3 - p1;
-  float x = (float) (U.y * V.z - U.z * V.y);
-  float y = (float) (U.z * V.x - U.x * V.z);
-  float z = (float) (U.x * V.y - U.y * V.x);
-  return point_t(x, y, z);
-}
-
 void VerticesGrid::VBO_kernel(const HermitianGrid &hermitianGrid, float scale,
                               size_t x, size_t y, size_t z, size_t& vbo_idx)
 {
