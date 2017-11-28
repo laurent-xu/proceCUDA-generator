@@ -29,7 +29,7 @@ public:
   AsynchronousGridMaker(size_t nb_voxels, size_t nb_thread_x,
                         size_t nb_thread_y, size_t nb_thread_z,
                         size_t max_grid_per_frame, size_t cache_size,
-			size_t max_grid_display)
+                        size_t max_grid_display, size_t nb_streams)
     : nb_voxels(nb_voxels),
       nb_thread_x(nb_thread_x),
       nb_thread_y(nb_thread_y),
@@ -37,7 +37,8 @@ public:
       max_grid_per_frame(max_grid_per_frame),
       cache_size(cache_size),
       max_grid_display(max_grid_display),
-      cache_lru(cache_size)
+      cache_lru(cache_size),
+      nb_streams(nb_streams)
   {
   }
 
@@ -79,6 +80,7 @@ private:
   LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash> cache_lru;
   std::vector<GridInfo> grids_info;
   bool done_generation;
+  size_t nb_streams;
 };
 
 #ifdef CUDA_GENERATION
