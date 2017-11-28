@@ -83,10 +83,10 @@ public:
     if (DeviceImplementation)
     {
       if (!hold_)
-        HOST_FREE(points_);
+        free_grid(points_);
     }
     else
-      CUDA_FREE_HOST(points_);
+      free_grid(points_);
   }
 
   BOTH_TARGET size_t dim_size() const { return info_.dimension; }
@@ -119,16 +119,52 @@ private:
   friend class GridF3<true>;
   friend class GridF3<false>;
 
+  static std::vector<F3*>& get_memory_pool()
+  {
+    static std::vector<F3*> memory_pool;
+    return memory_pool;
+
+  }
+
+  static F3* alloc_grid(size_t size)
+  {
+    bool first = true;
+    static size_t old_size;
+    if (first)
+    {
+      old_size = size;
+      first = false;
+    }
+    if (old_size != size)
+      std::abort();
+    F3* result;
+    if (get_memory_pool().empty())
+    {
+      if (DeviceImplementation)
+        HOST_MALLOC(result, size);
+      else
+        CUDA_MALLOC_HOST(&result, size);
+    }
+    else
+    {
+      result = get_memory_pool().back();
+      get_memory_pool().pop_back();
+    }
+    return result;
+  }
+
+  static void free_grid(F3* to_be_freed)
+  {
+    get_memory_pool().push_back(to_be_freed);
+  }
+
   HOST_TARGET GridF3(const dist_t& precision,
                      const off_vec3_t& offset,
                      size_t dimension)
     : info_(precision, offset, dimension)
   {
     auto size = dimension * dimension * dimension * sizeof(F3);
-    if (DeviceImplementation)
-      HOST_MALLOC(points_, size);
-    else
-      CUDA_MALLOC_HOST(&points_, size);
+    points_ = alloc_grid(size);
   }
 
   HOST_TARGET GridF3(const GridInfo& info)
@@ -136,10 +172,7 @@ private:
   {
     auto dimension = info.dimension;
     auto size = dimension * dimension * dimension * sizeof(F3);
-    if (DeviceImplementation)
-      HOST_MALLOC(points_, size);
-    else
-      CUDA_MALLOC_HOST(&points_, size);
+    points_ = alloc_grid(size);
   }
 
   F3* points_;

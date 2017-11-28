@@ -88,12 +88,14 @@ private:
 };
 
 #ifdef CUDA_GENERATION
-static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
-                                                          size_t nb_thread_x,
-                                                          size_t nb_thread_y,
-                                                          size_t nb_thread_z,
-                                                          size_t stream_idx,
-                                                          size_t nb_streams)
+static inline GridF3<false>::grid_t
+make_density_grid_aux(const GridInfo& info,
+                      size_t nb_thread_x,
+                      size_t nb_thread_y,
+                      size_t nb_thread_z,
+                      size_t stream_idx,
+                      size_t nb_streams,
+                      std::vector<GridF3<true>>& to_be_freed)
 {
   static cudaStream_t* streams;
   static bool initialized = false;
@@ -114,6 +116,7 @@ static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
 
   auto result_d = GridF3<true>::get_grid(info);
   result_d->hold();
+  to_be_freed.push_back(*result_d);
   auto& stream = streams[stream_idx];
   kernel_f3_caller<<<Dg,Db, 0, stream>>>(*result_d);
   return copy_to_host_async(result_d, stream);
@@ -122,7 +125,8 @@ static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
 static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
                                                           size_t, size_t,
                                                           size_t, size_t,
-                                                          size_t)
+                                                          size_t,
+                                                          std::vector<GridF3<true>>&)
 {
   size_t dimension = info.dimension;
   auto result = GridF3<false>::get_grid(info);
@@ -143,8 +147,9 @@ static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info,
                                                       size_t nb_thread_y,
                                                       size_t nb_thread_z,
                                                       size_t stream_idx,
-                                                      size_t nb_streams)
+                                                      size_t nb_streams,
+                                                      std::vector<GridF3<true>>& to_be_freed)
 {
   return make_density_grid_aux(info, nb_thread_x, nb_thread_y,
-                               nb_thread_z, stream_idx, nb_streams);
+                               nb_thread_z, stream_idx, nb_streams, to_be_freed);
 }

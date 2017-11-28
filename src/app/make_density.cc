@@ -82,6 +82,7 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
 {
   auto to_be_printed =
     std::make_shared<std::vector<std::shared_ptr<rendering::VerticesGrid>>>();
+  auto to_be_freed = std::vector<GridF3<true>>();
   static std::vector<GridInfo> generation_grids_info;
   static std::vector<GridF3<false>::grid_t> density_grids;
   make_octree(position, to_be_printed, generation_grids_info);
@@ -93,10 +94,16 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
     auto& info = generation_grids_info[i];
     density_grids.push_back(make_density_grid(info, nb_thread_x, nb_thread_y,
                                               nb_thread_z, i % nb_streams,
-                                              nb_streams));
+                                              nb_streams, to_be_freed));
   }
 
   CUDA_DEVICE_SYNCRHONIZE();
+
+#ifdef CUDA_GENERATION
+  for (auto& grid_d: to_be_freed)
+    grid_d.release();
+  to_be_freed.clear();
+#endif
 
   #pragma omp parallel for
   for (size_t i = 0; i < density_grids.size(); ++i)
@@ -112,7 +119,6 @@ AsynchronousGridMaker::make_grid(const glm::vec3& position, bool render)
     {
       cache_lru.add(density_grid->get_grid_info(), vertices_grid);
       to_be_printed->push_back(vertices_grid);
-      density_grid->release();
     }
   }
   generation_grids_info.clear();
