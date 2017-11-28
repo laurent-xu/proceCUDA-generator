@@ -1,3 +1,7 @@
-spatialize(30 30 30 100 30 150
-           multiply(perlin(30 6)
-                    constant(35)))
+spatialize(30 30 30 30 0 60
+           add(
+           multiply(perlin(4 6)
+                    constant(8))
+           perlin(0.5 7)
+           )
+           )

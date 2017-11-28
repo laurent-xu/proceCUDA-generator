@@ -24,7 +24,7 @@ void AsynchronousGridMaker::make_octree(const glm::vec3& position,
     to_be_printed, std::vector<GridInfo>& generation_grids_info)
 {
   grids_info.clear();
-  double interval = 1.;
+  double interval = 0.25;
   size_t it = 0;
   size_t nb_curr_gen = 0, nb_return = 1;
   GridInfo::vec3_t new_position;

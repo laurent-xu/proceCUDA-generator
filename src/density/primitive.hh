@@ -66,9 +66,8 @@ namespace density
   {
     F3 in;
     in.grad = height.grad * center_to_pos / radius;
-    auto distance2center = glm::normalize_safe(center_to_pos);
     in.grad -= glm::dot(in.grad, glm::normalize_safe(center_to_pos));
-    in.val = glm::length(distance2center) - (height.val + radius);
+    in.val = glm::length(center_to_pos) - (height.val + radius);
     return in;
   }
 
