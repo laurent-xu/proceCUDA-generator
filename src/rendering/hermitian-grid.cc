@@ -43,13 +43,15 @@ namespace rendering {
   }
 
   void HermitianGrid::_initSurfaceNodes(const GridF3<false>::grid_t &gridF3) {
-    for (int z = 0; z < _dimensions.z; z++)
-      for (int y = 0; y < _dimensions.y; y++)
-        for (int x = 0; x < _dimensions.x; x++) {
+    for (size_t z = 0; z < _dimensions.z; z++) {
+      _grid.emplace_back(std::vector<rendering::node_t>());
+      for (size_t y = 0; y < _dimensions.y; y++) {
+        for (size_t x = 0; x < _dimensions.x; x++) {
           auto &node = _grid[z][y * _dimensions.x + x];
-          node.min = point_t(x * _nodeSize, y * _nodeSize, z * _nodeSize);
-          node.min += point_t(gridF3->get_grid_info().offset).scale(gridF3->get_grid_info().dimension);
+          node.min = gridF3->to_position(x, y, z);
         }
+      }
+    }
   }
 
   void HermitianGrid::_computeIntersections() {
