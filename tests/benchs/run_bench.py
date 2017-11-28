@@ -11,6 +11,7 @@ def main():
   max_position = 100
 
   best_times = [0] * len(range_voxels_per_grid)
+  cpu_times = [0] * len(range_voxels_per_grid)
   best_values = [(0, 0, 0)] * len(range_voxels_per_grid)
   for it in range(len(range_voxels_per_grid)):
     print("============================")
@@ -22,6 +23,7 @@ def main():
           nb_camera_position, min_position, max_position))
     time2 = time.time()
     res = (time2 - time1) * 1000
+    cpu_times[it] = res
     print("CPU: %d" % res)
 
     range_threads = [1, 2, 4, 8, 16, 32, 64, 128]
@@ -45,6 +47,7 @@ def main():
 
     print(best_values)
     print(best_times)
+    print(cpu_times)
 
 if __name__ == "__main__":
   main()
