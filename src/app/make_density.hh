@@ -4,6 +4,7 @@
 #include <app/generation_kernel.hh>
 #include <octree/lru.hh>
 #include <utils/glm.hh>
+#include <utils/cudamacro.hh>
 #include <condition_variable>
 #include <thread>
 #include <memory>
@@ -43,7 +44,9 @@ public:
   }
 
 
-  void make_octree(const glm::vec3& position, std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>> to_be_printed, std::vector<GridInfo>& generation_grids_info);
+  void make_octree(const glm::vec3& position,
+                   std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
+                   to_be_printed, std::vector<GridInfo>& generation_grids_info);
 
   std::shared_ptr<std::vector<std::shared_ptr<rendering::VerticesGrid>>>
   make_grid(const glm::vec3& position, bool render = false);
@@ -77,18 +80,31 @@ private:
   size_t max_grid_per_frame;
   size_t cache_size;
   size_t max_grid_display;
-  LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash> cache_lru;
+  LRUCache<GridInfo, std::shared_ptr<rendering::VerticesGrid>, InfoHash>
+    cache_lru;
   std::vector<GridInfo> grids_info;
   bool done_generation;
   size_t nb_streams;
 };
 
 #ifdef CUDA_GENERATION
-static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info,
-                                                         size_t nb_thread_x,
-                                                         size_t nb_thread_y,
-                                                         size_t nb_thread_z)
+static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
+                                                          size_t nb_thread_x,
+                                                          size_t nb_thread_y,
+                                                          size_t nb_thread_z,
+                                                          size_t stream_idx,
+                                                          size_t nb_streams)
 {
+  static cudaStream_t* streams;
+  static bool initialized = false;
+  if (!initialized)
+  {
+    initialized = true;
+    streams = new cudaStream_t[nb_streams];
+    for (size_t i = 0; i < nb_streams; ++i)
+      cudaStreamCreate(&streams[i]);
+  }
+
   size_t dimension = info.dimension;
   size_t block_dim_x = (dimension + nb_thread_x - 1) / nb_thread_x;
   size_t block_dim_y = (dimension + nb_thread_y - 1) / nb_thread_y;
@@ -96,16 +112,15 @@ static inline GridF3<true>::grid_t make_density_grid_aux(const GridInfo& info,
   dim3 Dg(block_dim_x, block_dim_y, block_dim_z);
   dim3 Db(nb_thread_x, nb_thread_y, nb_thread_z);
 
-  auto result = GridF3<true>::get_grid(info);
-  result->hold();
-  kernel_f3_caller<<<Dg,Db>>>(*result);
-  // TODO Laurent Remove the next line
-  cudaDeviceSynchronize();
-  result->release();
-  return result;
+  auto result_d = GridF3<true>::get_grid(info);
+  result_d->hold();
+  auto& stream = streams[stream_idx];
+  kernel_f3_caller<<<Dg,Db, 0, stream>>>(*result_d);
+  return copy_to_host_async(result_d, stream);
 }
 #else
 static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
+                                                          size_t, size_t,
                                                           size_t, size_t,
                                                           size_t)
 {
@@ -123,34 +138,13 @@ static inline GridF3<false>::grid_t make_density_grid_aux(const GridInfo& info,
 }
 #endif
 
-#ifdef CUDA_RENDERING
-static inline GridF3<true>::grid_t make_density_grid(const GridInfo& info,
-                                                     size_t nb_thread_x,
-                                                     size_t nb_thread_y,
-                                                     size_t nb_thread_z)
-{
-  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y,
-                                         nb_thread_z);
-#ifdef CUDA_GENERATION
-  auto result = generated;
-#else
-  auto result = copy_to_device(generated);
-#endif
-  return result;
-}
-#else
 static inline GridF3<false>::grid_t make_density_grid(const GridInfo& info,
                                                       size_t nb_thread_x,
                                                       size_t nb_thread_y,
-                                                      size_t nb_thread_z)
+                                                      size_t nb_thread_z,
+                                                      size_t stream_idx,
+                                                      size_t nb_streams)
 {
-  auto generated = make_density_grid_aux(info, nb_thread_x, nb_thread_y,
-                                         nb_thread_z);
-#ifdef CUDA_GENERATION
-  auto result = copy_to_host(generated);
-#else
-  auto result = generated;
-#endif
-  return result;
+  return make_density_grid_aux(info, nb_thread_x, nb_thread_y,
+                               nb_thread_z, stream_idx, nb_streams);
 }
-#endif

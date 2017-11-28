@@ -86,7 +86,7 @@ public:
         HOST_FREE(points_);
     }
     else
-      free(points_);
+      CUDA_FREE_HOST(points_);
   }
 
   BOTH_TARGET size_t dim_size() const { return info_.dimension; }
@@ -128,7 +128,7 @@ private:
     if (DeviceImplementation)
       HOST_MALLOC(points_, size);
     else
-      points_ = (F3*)malloc(size);
+      CUDA_MALLOC_HOST(&points_, size);
   }
 
   HOST_TARGET GridF3(const GridInfo& info)
@@ -139,7 +139,7 @@ private:
     if (DeviceImplementation)
       HOST_MALLOC(points_, size);
     else
-      points_ = (F3*)malloc(size);
+      CUDA_MALLOC_HOST(&points_, size);
   }
 
   F3* points_;
@@ -148,6 +148,17 @@ private:
 };
 
 #ifdef CUDA_CODE
+static inline GridF3<false>::grid_t
+copy_to_host_async(const GridF3<true>::grid_t& in_d, cudaStream_t& stream)
+{
+  auto result_h = GridF3<false>::get_grid(in_d->get_grid_info());
+  auto dimension = in_d->dim_size();
+  auto size = dimension * dimension * dimension * sizeof(F3);
+  cudaMemcpyAsync((void*)result_h->get_grid(), (void*)in_d->get_grid(), size,
+                   cudaMemcpyDeviceToHost, stream);
+  return result_h;
+}
+
 static inline GridF3<false>::grid_t
 copy_to_host(const GridF3<true>::grid_t& in)
 {
