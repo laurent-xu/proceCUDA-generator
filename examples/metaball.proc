@@ -1,6 +1,6 @@
 add(
-  clamp(-30 0 sphere(15 15 15 10))
-  clamp(-30 0 sphere(21 15 15 10))
-  clamp(-30 0 sphere(27 19 15 10))
+  clamp(-30 0 sphere(45 45 45 10))
+  clamp(-30 0 sphere(51 45 45 10))
+  clamp(-30 0 sphere(57 49 45 10))
   constant(2)
 )
